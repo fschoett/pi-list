@@ -15,6 +15,7 @@ router.use('/pcap', require('./pcap'));
 router.use('/sdp', require('./sdp'));
 router.use('/user', require('./user'));
 router.use('/meta', require('./meta'));
+router.use('/monitor', require('./monitor'));
 
 if (program.liveMode) {
     router.use('/live', require('./live'));

@@ -37,6 +37,10 @@ function parseArguments(arguments) {
     config.liveMode = liveModeEnv || config.liveMode;
     console.log('config.liveMode:', config.liveMode);
 
+    const captureInterface = process.env.EBU_LIST_CAPTURE_INTERFACE || config.capture.interfaceName;
+    config.captureInterface = captureInterface;
+    console.log('config.captureInterface:',config.captureInterface);
+
     return config;
 }
 

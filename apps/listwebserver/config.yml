@@ -2,8 +2,10 @@
 # Use this file for development mode
 
 # Filesystem related
-folder: /home/ebu/tmp/list/
-cpp: /home/ebu/list/live/cmake-build-debug/third_party/ebu_list/bin/
+#folder: /home/ebu/tmp/list/
+folder: /home/fschoett/Documents/ebu-list-dev/pi-list/apps/
+#cpp: /home/ebu/list/live/cmake-build-debug/third_party/ebu_list/bin/
+cpp: /home/fschoett/Documents/ebu-list-dev/pi-list/build-debug/bin/
 
 # HTTP-related
 cookieSecret: STRD4O
@@ -24,3 +26,6 @@ nmosRegistry:
   port: 8082
   version: 1.2
   refresh: 1
+
+capture:
+  interfaceName: ens33

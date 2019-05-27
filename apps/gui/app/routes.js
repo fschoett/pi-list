@@ -9,6 +9,7 @@ import StreamPage from './pages/StreamPage';
 import LiveStreamPage from './pages/LiveStreamPage';
 import PcapsPage from './pages/PcapsPage';
 import CapturePage from './pages/CapturePage';
+import MonitorPage from './pages/MonitorPage';
 import FlowList from './containers/live/FlowList';
 import ErrorPage from './components/ErrorPage';
 import errorEnum from './enums/errorEnum';
@@ -23,6 +24,7 @@ export default (
         <Route exact path={routeNames.HOME} component={DB} />
         <Route exact path={routeNames.SETTINGS} component={Settings} />
         <Route exact path={routeNames.PCAPS} component={PcapsPage} />
+	<Route exact path={routeNames.MONITOR} component={MonitorPage} />
         <Route exact path={routeNames.CAPTURE} component={CapturePage} />
         <Route path={`${routeNames.PCAPS}/:pcapID/ptp`} component={PtpPage} exact />
         <Route path={`${routeNames.PCAPS}/:pcapID/${routeNames.STREAMS_PAGE}`} component={StreamList} exact />

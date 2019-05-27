@@ -140,5 +140,12 @@ export default {
     deleteLiveStream: streamID => request.delete(`live/streams/${streamID}`),
     changeLiveStreamName: (streamID, data) => request.patch(`live/streams/${streamID}/`, data),
     subscribeLiveStream: data => request.put('live/streams/subscribe/', data),
-    subscribePCAP: data => request.put('live/pcap/capture/', data)
+    subscribePCAP: data => request.put('live/pcap/capture/', data),
+
+
+    /* Monitor */
+    getMonitor: () => request.get('monitor/'),
+    startMonitor: data => request.put('monitor/start', data),
+    analyzeMonitoredStream: data => request.put('monitor/analyze', data),
+    stopMonitor: data => request.put('monitor/stop', data)
 };

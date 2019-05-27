@@ -15,6 +15,12 @@ export default {
             exact: false,
             liveOnly: true
         },
+        {
+            link: routeNames.MONITOR,
+            icon: 'add_to_queue',
+            labelTag: 'navigation.monitor',
+            exact: false,
+        },
         // {
         //     link: routeNames.LIVE,
         //     icon: 'settings_input_antenna',

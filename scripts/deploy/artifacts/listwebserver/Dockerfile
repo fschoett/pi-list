@@ -2,12 +2,17 @@
 
 FROM gcc:7.2
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install node
 RUN curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
 RUN bash nodesource_setup.sh
 RUN apt-get install -y \
         ffmpeg \
-        nodejs
+        nodejs \
+	tcpdump
+
+RUN printf 'yes\n' | apt install -y wireshark-common
 
 RUN npm install -g serve
 
