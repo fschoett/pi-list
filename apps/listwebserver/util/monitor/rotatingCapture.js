@@ -19,6 +19,15 @@ const getDropInfo = (stdout) => {
     return { kernel, interface };
 };
 
+function checkDirectory( path ){
+    fs.mkdir(path, err => { 
+        if (err && err.code != 'EEXIST') throw 'up'
+        {
+            logger('rotating_capture').info('dir. already exists.');
+        }
+    });
+}
+
 // Remove all files from a directory before filling it with the new files
 // Copied from https://stackoverflow.com/questions/27072866/how-to-remove-all-files-from-directory-without-removing-directory-in-node-js
 function cleanDirectory(directory){
@@ -70,7 +79,9 @@ function startCapturing(monitorOptions) {
         // Possible buffer size achived with this method are 1 Minute, 1 Hour, 1 Day, 1 Month, 1 Year
         const rotatingFileNameIntervalString = "-%S";
         var rotatingFileName = monitorOptions.path + monitorOptions.file+rotatingFileNameIntervalString+".pcap";
-        
+
+
+        checkDirectory( monitorOptions.path );
         cleanDirectory( monitorOptions.path );
 
         //Insert the fileNameInterval into the filename
@@ -107,14 +118,14 @@ function startCapturing(monitorOptions) {
         };
 
         tcpDumpProcess.on('error', (err) => {
-            logger('live').error(`error during capture:, ${err}`);
+            logger('capture').error(`error during capture:, ${err}`);
         });
 
         tcpDumpProcess.stdout.on('data', appendToOutput);
         tcpDumpProcess.stderr.on('data', appendToOutput);
 
         tcpDumpProcess.on('close', (code) => {
-            logger('live').info(`child process exited with code ${code}`);
+            logger('capture').info(`child process exited with code ${code}`);
 
             stopCapturing();
 
@@ -122,19 +133,19 @@ function startCapturing(monitorOptions) {
 
             const dropInfo = getDropInfo(stdout);
 
-            logger('live').info('Drop info:', dropInfo);
-            logger('live').info(stdout);
+            logger('capture').info('Drop info:', dropInfo);
+            logger('capture').info(stdout);
 
             if (code < 0) {
                 const message = `tcpdump failed with code: ${code}`;
-                logger('live').error(message);
+                logger('capture').error(message);
                 reject(message);
                 return;
             }
 
             if (dropInfo.kernel > 0 || dropInfo.interface > 0) {
                 const message = `Dropped packets: dropInfo.kernel: ${dropInfo.kernel} | dropInfo.interface: ${dropInfo.interface}`;
-                logger('live').error(message);
+                logger('capture').error(message);
                 reject(message);
                 return;
             }

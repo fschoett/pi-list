@@ -18,7 +18,7 @@ services:
     environment:
         - EBU_LIST_WEB_APP_DOMAIN=${EBU_LIST_WEB_APP_DOMAIN}
         - EBU_LIST_LIVE_MODE=${EBU_LIST_LIVE_MODE}
-	- EBU_LIST_CAPTURE_INTERFACE=${EBU_LIST_CAPTURE_INTERFACE}
+        - EBU_LIST_CAPTURE_INTERFACE=${EBU_LIST_CAPTURE_INTERFACE}
     links:
       - influxdb
       - mongo
