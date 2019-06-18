@@ -18,21 +18,33 @@ function getCurrentSeconds(){
 
 
 function buildInputString( currentSeconds, duration, filename, filepath ){
-    var output = [];
-
-    for( var i=0; i<duration; i++){
-        var seconds = currentSeconds-2-i;
-        if(seconds < 0){
-            seconds = 59+seconds;
-        }
+    return new Promise( function (resolve, reject){
         
-        var secondsString = "";
-        if(seconds / 10 < 1) secondsString = "0"+seconds;
-        else secondsString = seconds;
+        var output = [];
+    
+        // Prevent the collision of tcpdump writing into files. wait until it is save to read from the files
+        const TIMEOUT_S = 2;
+    
+        console.log("START WAITING 2s ...");
+    
+        setTimeout(()=>{
+            for( var i=0; i<duration; i++){
         
-        output.push(`${filepath}${filename}-${secondsString}.pcap`);
-    }
-    return output
+                var seconds = currentSeconds-i;
+                if(seconds < 0){
+                    seconds = 60+seconds;
+                }
+                
+                var secondsString = "";
+                if(seconds / 10 < 1) secondsString = "0"+seconds;
+                else secondsString = seconds;
+                
+                output.push(`${filepath}${filename}-${secondsString}.pcap`);
+            }
+            console.log("...STOP WAITING 2s!");
+            resolve(output);
+        },TIMEOUT_S*1000);
+    });
 }
 
 
@@ -45,41 +57,46 @@ function mergeFiles( mergeOptions ){
     
         var currentSeconds = getCurrentSeconds();
     
-        const inputString = buildInputString(currentSeconds, duration, filename, filepath);
-    
-        const mergecapArguments = ["-w", filepath+outputString,"-F", "pcap", ...inputString ];
-        const mergecapOptions = {};
-        const mergecapProgram = "/usr/bin/mergecap";
-    
-        const mergecapProcess = child_process.spawn(
-            mergecapProgram,
-            mergecapArguments,
-            mergecapOptions
-        )
+        return buildInputString(currentSeconds, duration, filename, filepath).then( str => {
+            const inputString = str;
+            logger("mergecap").info("Files to merge: " + str);
+            
+            const mergecapArguments = ["-w", filepath+outputString,"-F", "pcap", ...inputString ];
+            const mergecapOptions = {};
+            const mergecapProgram = "/usr/bin/mergecap";
         
-        const mergecapOutput = [];
-        const appendToOutput = ( data ) =>{
-            mergecapOutput.push( new TextDecoder("utf-8").decode(data));
-        };
+            const mergecapProcess = child_process.spawn(
+                mergecapProgram,
+                mergecapArguments,
+                mergecapOptions
+            )
+            
+            const mergecapOutput = [];
+            const appendToOutput = ( data ) =>{
+                mergecapOutput.push( new TextDecoder("utf-8").decode(data));
+            };
+        
+            mergecapProcess.stderr.on("data", appendToOutput);
+            mergecapProcess.stdout.on("data", appendToOutput);
+        
+            mergecapProcess.on("close", (code) =>{
+                logger("mergecap").info("Child process exited with code "+code);
+        
+                const stdout = mergecapOutput.join('\n');
+                logger("mergecap").info( stdout );
+        
+                if (code != 0) {
+                    const message = `Mergecap failed with code: ${code}`;
+                    logger('live').error(message);
+                    reject(message);
+                    return;
+                }
     
-        mergecapProcess.stderr.on("data", appendToOutput);
-        mergecapProcess.stdout.on("data", appendToOutput);
-    
-        mergecapProcess.on("close", (code) =>{
-            logger("mergecap").info("Child process exited with code "+code);
-    
-            const stdout = mergecapOutput.join('\n');
-            logger("mergecap").info( stdout );
-    
-            if (code != 0) {
-                const message = `Mergecap failed with code: ${code}`;
-                logger('live').error(message);
-                reject(message);
-                return;
-            }
+                resolve();
+            });
 
-            resolve();
         });
+    
 
     });
 }
