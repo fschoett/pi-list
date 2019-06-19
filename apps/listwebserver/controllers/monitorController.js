@@ -63,10 +63,12 @@ function analyze(req,res,next){
         filename: mergeOptions.outputString
     };
     
+    
     mergeFiles( mergeOptions ).then(()=>{
         next();
         res.send("Finished analzying");
-    }).catch(()=>{
+    }).catch( () => {
+        console.log("An error occoured");
         res.status(400);
         res.send("An error occured, trying to merge files");
     });
