@@ -20,7 +20,7 @@ class CaptureList{
     }
 
     getSingleCapture( captureID ){
-        return this.captures[ captureID ];
+        return this.captures[ captureID ].clone();
     }
 
     getCaptures(){

@@ -1,0 +1,8 @@
+{
+    "captureDirectorys":[
+        {
+            "path": "/home/fschoett/Documents/ebu-list-dev/pi-list/apps/dump_server/captures/",
+            "type": "ramdisk"
+        }
+    ]
+}
