@@ -79,7 +79,15 @@ async function startCapturing(monitorOptions) {
     // At the moment the buffer size is limited to 1 minute. To extend this buffer, change the added date format
     // Possible buffer size achived with this method are 1 Minute, 1 Hour, 1 Day, 1 Month, 1 Year
     const rotatingFileNameIntervalString = "-%S";
-    var rotatingFileName = monitorOptions.path + monitorOptions.file+rotatingFileNameIntervalString+".pcap";
+    const pathToRamdisk = "/app/listwebserver/ramdisk/";
+    
+    var rotatingFileName = '';
+    if( program.ramdisk ){
+        rotatingFileName = pathToRamdisk + monitorOptions.file+rotatingFileNameIntervalString+".pcap";
+    }
+    else{
+        rotatingFileName = monitorOptions.path + monitorOptions.file+rotatingFileNameIntervalString+".pcap";
+    }
 
 
     checkDirectory( monitorOptions.path );

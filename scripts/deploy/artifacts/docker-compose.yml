@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 services:
   influxdb:
     image: influxdb:1.4.2
@@ -19,11 +19,15 @@ services:
         - EBU_LIST_WEB_APP_DOMAIN=${EBU_LIST_WEB_APP_DOMAIN}
         - EBU_LIST_LIVE_MODE=${EBU_LIST_LIVE_MODE}
         - EBU_LIST_CAPTURE_INTERFACE=${EBU_LIST_CAPTURE_INTERFACE}
+        - EBU_LIST_RAMDISK=${EBU_LIST_RAMDISK}
     links:
       - influxdb
       - mongo
     volumes:
       - listserver:/home/
+      - type: bind
+        source: /media/ramdisk
+        target: /app/listwebserver/ramdisk
 
 volumes:
   mongo:

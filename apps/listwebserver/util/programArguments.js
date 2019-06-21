@@ -41,6 +41,10 @@ function parseArguments(arguments) {
     config.captureInterface = captureInterface;
     console.log('config.captureInterface:',config.captureInterface);
 
+    const ramdisk = process.env.EBU_LIST_RAMDISK || false;
+    config.ramdisk = ramdisk;
+    console.log('config.ramdisk: ', config.ramdisk);
+
     return config;
 }
 

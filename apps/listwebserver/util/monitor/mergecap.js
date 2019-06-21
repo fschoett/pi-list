@@ -10,6 +10,7 @@ const logger = require('../logger');
 const textEncoding = require('text-encoding');
 const TextDecoder = textEncoding.TextDecoder;
 const timeout = require('../promissedTimeout.js');
+const program = require('../programArguments');
 
 function getCurrentSeconds(){
     var date = new Date();
@@ -52,8 +53,15 @@ async function mergeFiles( mergeOptions ){
     const filepath = mergeOptions.filepath;
 
     var currentSeconds = getCurrentSeconds();
-
-    const inputString = await buildInputString(currentSeconds, duration, filename, filepath);
+    var inputString = '';
+    
+    if( program.ramdisk ){
+        inputString = await buildInputString(currentSeconds, duration, filename, "/app/listwebserver/ramdisk/");
+    }
+    else{
+        inputString = await buildInputString(currentSeconds, duration, filename, filepath);
+    }   
+    
         
     logger("mergecap").info("Files to merge: " + inputString);
     
