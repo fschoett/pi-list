@@ -139,6 +139,11 @@ function stopMonitoring(req, res, next){
                     res.sendStatus( fetchRes.status);
                     return
                 }
+            }).catch( (error) => {
+                console.error("An error occured while trying to stop all capture!");
+                console.error( error );
+                res.status( 500 );
+                res.send( error.message );
             });
     }
 }
