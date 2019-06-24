@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import Button from '../../components/common/Button';
 import { translateC } from '../../utils/translation';
+import Select from 'react-select';
 import api from '../../utils/api';
 import asyncLoader from '../../components/asyncLoader';
 import Input from '../../components/common/Input';
@@ -57,7 +58,11 @@ class MonitorPanel extends Component {
             is_monitoring: props.monitor.is_monitoring,
             monitorStatus: monitorStatus.noCapture,
             captureId: undefined,
-            captureErrorMessage: undefined
+            captureErrorMessage: undefined,
+            availableIfaces: [],
+            availableDirs: [],
+            selectedDir: "",
+            selectedIface: ""
         };
 
         if( this.state.is_monitoring == true ){
@@ -67,7 +72,7 @@ class MonitorPanel extends Component {
         
         props.monitor.streamEndpoints && (this.state.streams.splice(0,0, props.monitor.streamEndpoints));
         
-
+        
         this.startMonitor = this.startMonitor.bind(this);
         this.stopMonitor = this.stopMonitor.bind(this);
         this.analyzeMonitor = this.analyzeMonitor.bind(this);
@@ -80,6 +85,15 @@ class MonitorPanel extends Component {
         this.onCaptureDescriptionChanged = this.onCaptureDescriptionChanged.bind(this);
         this.updateNow = this.updateNow.bind(this);
         this.getFullName = this.getFullName.bind(this);
+        
+        this.onDirChanged = this.onDirChanged.bind(this);
+        this.onIfaceChanged= this.onIfaceChanged.bind(this);
+        this.getDirs = this.getDirs.bind(this);
+        this.getIfaces = this.getIfaces.bind(this);
+        
+        
+        this.getIfaces();
+        this.getDirs();
     }
 
     componentDidMount() {
@@ -284,6 +298,39 @@ class MonitorPanel extends Component {
 
     }
 
+    getIfaces(){
+        
+        api.getIfaces()
+            .then( (ifaceList) => {
+                console.log(ifaceList);
+                var newIfaceList = ifaceList.map( (value ) =>{
+                    return {value: value, label: value}
+                })
+                this.setState( {availableIfaces: newIfaceList} );
+                this.setState( {selectedIface: newIfaceList[0]})
+            })
+    }
+
+    onIfaceChanged( newValue ){
+        this.setState( {selectedIface: newValue});
+    }
+
+    getDirs(){
+        api.getDirs()
+            .then( (dirList) => {
+                console.log(dirList);
+                var newDirList = dirList.map( (value) =>{
+                    return {value: value, label: value}
+                })
+                this.setState( {availableDirs: newDirList});
+                this.setState( {selectedDir: newDirList[0]})
+            })
+    }
+
+    onDirChanged( newValue ){
+        this.setState( {selectedDir: newValue});
+    }
+
     onCaptureFullNameChanged(value) {
         this.setState({ captureFullName: value });
     }
@@ -314,6 +361,8 @@ class MonitorPanel extends Component {
 
         const captureFullName = this.getFullName();
 
+        
+
         return (
             <div>
                 { this.state.is_monitoring ? 
@@ -335,6 +384,28 @@ class MonitorPanel extends Component {
                     </div>
                 :
                     <div>
+                        <div className ="row">
+                            <div className="col-xs-6">
+                                <Select
+                                    clearable={false}
+                                    placeholder="Capture Dir."
+                                    options={this.state.availableDirs}
+                                    value={this.state.selectedDir}
+                                    onChange={this.onDirChanged}
+                                />
+                            </div>
+                            <div className="col-xs-6">
+                                <Select
+                                    clearable={false}
+                                    placeholder="Capture Iface:"
+                                    options={this.state.availableIfaces}
+                                    value={this.state.selectedIface}
+                                    onChange={this.onIfaceChanged}
+                                />
+                            </div>
+
+                        </div>
+
                         <div className="lst-sdp-config lst-no-margin">
                                 <StreamsListPanel streams={this.state.streams} handleChange={this.onStreamsChanged} />
                             <hr/> 
@@ -345,7 +416,9 @@ class MonitorPanel extends Component {
                                     onChange={evt => this.onCaptureDescriptionChanged(evt.target.value)}
                                 />
                             </FormInput>
+
                         </div>
+
                         
                         <hr />
                         <div className="row lst-align-items-center lst-no-margin lst-margin--bottom-1">

@@ -147,5 +147,7 @@ export default {
     getMonitor: () => request.get('monitor/'),
     startMonitor: data => request.put('monitor/start', data),
     analyzeMonitoredStream: data => request.put('monitor/analyze', data),
-    stopMonitor: data => request.put('monitor/stop', data)
+    stopMonitor: data => request.put('monitor/stop', data),
+    getIfaces: () => request.get('monitor/ifaces'),
+    getDirs: () => request.get('monitor/dirs')
 };
