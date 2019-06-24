@@ -2,10 +2,12 @@ const express = require('express');
 const {networkIfaces, captureDirs} = require('./setup_info.js');
 var CaptureList = require('./capture_list.js');
 const Capture = require('./capture.js');
+const addBindMounts = require('./setup_docker_compose.js');
 const app = express();
 const port = 3000;
 
 var captureList = new CaptureList();
+addBindMounts();
 
 app.use( express.json() );
 
@@ -27,7 +29,7 @@ app.post('/captures', (req,res) => {
         ).catch( ()=>{
             console.log("An error occured trying to start a capture");
             res.sendStatus( 400 );
-        });
+        }); 
 
     } catch (error) {
         console.error( error.message );
@@ -84,7 +86,10 @@ app.get('/ifaces/:iface', (req,res) => {
 
 // Get a list of all allowed directorys
 app.get('/dirs', (req,res) =>{
-    res.send( captureDirs );
+    var dirNames = captureDirs.map( (dir)=>{
+        return dir.name;
+    });
+    res.send( dirNames );
 });
 
 app.listen(port, () => console.log(`The dump_server listens on port ${port}`));

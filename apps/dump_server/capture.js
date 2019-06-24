@@ -17,6 +17,7 @@ class Capture{
 
         var found = false;
         for( var i=0; i<captureDirs.length; i++){
+            console.log(captureDirs[i].path);
             if( captureDirs[i].path == params.directory ) found = true;
         }
         

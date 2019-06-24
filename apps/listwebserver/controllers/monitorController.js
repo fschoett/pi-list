@@ -1,44 +1,90 @@
 const fs = require('../util/filesystem');
+const fetch = require('node-fetch')
 const { generateRandomPcapDefinition } = require('../util/ingest')
 const {startCapturing, stopCapturing, getMonitors} = require('../util/monitor/rotatingCapture');
 const { mergeFiles } = require("../util/monitor/mergecap");
 const program = require("../util/programArguments");
 
-function startMonitoring(req, res){
-           // get Endpoints out of the request
-           var tmpEndpoints = req.body.streams ? req.body.streams.filter(f => f.dstAddr && f.dstPort) : [];
 
-           var monitorOptions = {
-               uuid: req.body.uuid,
-               snapshotLengthBytes: "15000",
-               streamEndpoints: tmpEndpoints,
-               file: req.body.name,
-               duration: req.body.duration,
-               interfaceName: program.captureInterface,
-               path: "captures/"        
-            };
+const TMP_SERVER_FLAG = false;
+
+function startMonitoring(req, res){
+           
     
-            // Check if a monitoring is currently in progress
-            if( getMonitors() ){
-                if( getMonitors.is_monitoring ){
-                    stopCapturing().then(()=>{
-                        startCapturing( monitorOptions )
-                            .then( ()=>{ res.send("monitoring started") })
-                            .catch( ()=> {
-                                res.status(500);
-                                res.send("An error occured during the start of the monitor");
-                            });
+            if(TMP_SERVER_FLAG){
+
+                // get Endpoints out of the request
+               var tmpEndpoints = req.body.streams ? req.body.streams.filter(f => f.dstAddr && f.dstPort) : [];
+    
+               var monitorOptions = {
+                   uuid: req.body.uuid,
+                   snapshotLengthBytes: "15000",
+                   streamEndpoints: tmpEndpoints,
+                   file: req.body.name,
+                   duration: req.body.duration,
+                   interfaceName: program.captureInterface,
+                   path: "captures/"        
+                };
+        
+                // Check if a monitoring is currently in progress
+                if( getMonitors() ){
+                    if( getMonitors.is_monitoring ){
+                        stopCapturing().then(()=>{
+                            startCapturing( monitorOptions )
+                                .then( ()=>{ res.send("monitoring started") })
+                                .catch( ()=> {
+                                    res.status(500);
+                                    res.send("An error occured during the start of the monitor");
+                                });
+                        });
+                        return;
+                    }
+                }
+        
+                startCapturing( monitorOptions )
+                    .then( ()=>{ res.send("monitoring started");})
+                    .catch( ()=> {
+                        res.status(500);
+                        res.send("An error occured during the start of the monitor") 
                     });
-                    return;
+            }
+            else{
+                var tmpEndpoints = req.body.streams ? req.body.streams.filter(f => f.dstAddr && f.dstPort) : [];
+                if( !tmpEndpoints.length ) tmpEndpoints = [{}]
+
+                for( var i=0; i<tmpEndpoints.length; i++){
+                    fetch('http://localhost:3000/captures',{
+                        method: 'POST',
+                        body: JSON.stringify({
+                            iface: program.captureInterface,
+                            directory:"captures/",
+                            file: req.body.name,
+                            multicast_ip: tmpEndpoints[i].dstAddr,
+                            port: tmpEndpoints[i].dstPort
+                        }),
+                        headers: { 'Content-Type': 'application/json' },
+                    })
+                    .then( fetchRes => {
+                        if( fetchRes.status != 200){
+                            console.log("ERROR trying to start capture");
+                            res.sendStatus(fetchRes.status);
+                        }
+                        else{
+                            return fetchRes.json();
+                        }
+                        
+                    })
+                    .then( jsonRes => {
+                        console.log(jsonRes);
+                        res.sendStatus(200);
+                    })
+                    .catch( (error)=> {
+                        console.log( error);
+                        res.sendStatus(500);
+                    });
                 }
             }
     
-            startCapturing( monitorOptions )
-                .then( ()=>{ res.send("monitoring started");})
-                .catch( ()=> {
-                    res.status(500);
-                    res.send("An error occured during the start of the monitor") 
-                });
 
 }
 
@@ -76,9 +122,25 @@ function analyze(req,res,next){
 
 
 function stopMonitoring(req, res, next){
-    stopCapturing().then(()=>{
-        analyze(req, res, next);    
-    });
+    if(TMP_SERVER_FLAG){
+        stopCapturing().then(()=>{
+            analyze(req, res, next);    
+        });
+    }
+    else{
+        // For now: Delete all captures.. 
+        fetch('http://localhost:3000/captures',{ method: 'DELETE' })
+            .then( fetchRes => {
+                if( fetchRes.ok ){
+                    res.sendStatus( 200);
+                    return
+                }
+                else{
+                    res.sendStatus( fetchRes.status);
+                    return
+                }
+            });
+    }
 }
 
 

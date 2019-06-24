@@ -48,7 +48,7 @@ async function startCapturing(params) {
         snapshotLength : 20000,
         
     }
-    
+
     const snapshotLength = config.snapshotLengthBytes
         ? [`--snapshot-length=${config.snapshotLengthBytes}`]
         : [];
