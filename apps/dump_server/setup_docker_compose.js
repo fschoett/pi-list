@@ -28,12 +28,7 @@ function addBindMounts(){
     // For each dir in the config file, add a new bind line in the yml file
     for( var i=0; i < captureDirs.length; i++ ){
         var src = captureDirs[i].path;
-        
-        var counter = "";
-        if( i < 10) counter = "0"+i;
-        else counter = counter+i;
-        
-        var dst = DST_DIR_NAME+counter;
+        var dst = captureDirs[i].docker;
         
         // Create the object holding the mount information
         var tmpVolume = {

@@ -49,7 +49,7 @@ app.get('/captures', (req,res) => {
 // Return a description of the capture with the ID captureID
 app.get('/captures/:captureID', (req,res) => {
     var capture = captureList.getSingleCapture([req.params.captureID])
-    res.send( JSON.stringify( capture ) );
+    res.send( capture);
 });
 
 // Stop a capturing process with the ID captureID 
@@ -87,7 +87,7 @@ app.get('/ifaces/:iface', (req,res) => {
 // Get a list of all allowed directorys
 app.get('/dirs', (req,res) =>{
     var dirNames = captureDirs.map( (dir)=>{
-        return dir.name;
+        return {dir_name: dir.name, dir_docker: dir.docker} ;
     });
     res.send( dirNames );
 });

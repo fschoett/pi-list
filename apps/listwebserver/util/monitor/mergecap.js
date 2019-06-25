@@ -65,7 +65,7 @@ async function mergeFiles( mergeOptions ){
         
     logger("mergecap").info("Files to merge: " + inputString);
     
-    const mergecapArguments = ["-w", filepath+outputString,"-F", "pcap", ...inputString ];
+    const mergecapArguments = ["-w", filepath+outputString ,"-F", "pcap", ...inputString ];
     const mergecapOptions = {};
     const mergecapProgram = "/usr/bin/mergecap";
 

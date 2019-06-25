@@ -41,9 +41,14 @@ function parseArguments(arguments) {
     config.captureInterface = captureInterface;
     console.log('config.captureInterface:',config.captureInterface);
 
+    /*
     const ramdisk = process.env.EBU_LIST_RAMDISK || false;
     config.ramdisk = ramdisk;
-    console.log('config.ramdisk: ', config.ramdisk);
+    console.log('config.ramdisk: ', config.ramdisk);*/
+
+    const dumpServerAddr = process.env.EBU_LIST_DUMP_SERVER_ADDR || 'http://localhost:3000'
+    config.dumpServerAddr = dumpServerAddr;
+    console.log('config.dumpServerAddr: ', config.dumpServerAddr);
 
     return config;
 }

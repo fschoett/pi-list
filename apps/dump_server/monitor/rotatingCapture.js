@@ -76,21 +76,11 @@ async function startCapturing(params) {
     const rotatingFileNameIntervalString = "-%S";
     
     //const pathToRamdisk = "/app/listwebserver/ramdisk/";
-    
-    var rotatingFileName = params.directory + params.file+rotatingFileNameIntervalString+".pcap";
+    console.log(params.directory)
+    var rotatingFileName = params.directory+params.file_name+rotatingFileNameIntervalString+".pcap";
     
     checkDirectory( params.directory );
     cleanDirectory( params.directory );
-
-    //Insert the fileNameInterval into the filename
-    if( params.file ){
-        var indexOfPcap = params.file.indexOf(".pcap");
-        if ( indexOfPcap >= 0 ){
-            rotatingFileName = params.file.slice(0, indexOfPcap) 
-                + rotatingFileNameIntervalString 
-                + params.file.slice( indexOfPcap );
-        }
-    }
     
     const BUFFER_SIZE = 200000;
 

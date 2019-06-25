@@ -15,22 +15,27 @@ class Capture{
             throw new Error(`Interface ${ params.iface} does not exist!`);
         }
 
+        // Check if the give directory is valid and select the corresponding 
+        // host-path as the capturing directory
         var found = false;
         for( var i=0; i<captureDirs.length; i++){
-            console.log(captureDirs[i].path);
-            if( captureDirs[i].path == params.directory ) found = true;
+            //console.log(captureDirs[i].path);
+            if( captureDirs[i].docker == params.directory ) {
+                this.directory = captureDirs[i].path;
+                
+                console.log(captureDirs[i].path);
+                this.docker_dir= captureDirs[i].docker;
+                found = true;
+                break
+            }
         }
+        if( !found) throw new Error(`Directory ${params.directory} not found or is not allowed!`);
         
-        if( found ){
-            this.directory = params.directory;
-        }
-        else{
-            throw new Error(`Directory ${params.directory} not found or is not allowed!`);
-        }
-        
+
         this.multicast_ip = params.multicast_ip;
         this.port = params.port;
         this.file = params.file_name || 'tmp-%S.pcap';
+        this.file_name = this.file.slice( 0, this.file.indexOf('-%'));
         
 
         // Generate IP..
@@ -41,8 +46,9 @@ class Capture{
 
     // Start the capturing and return the process information
     startCapture(){
-        console.log("Start Capture");
-        return startCapturing( this.params );
+        var clone = this.clone();
+        clone.directory = this.directory;
+        return startCapturing( clone );
     }
 
     // Stop the capturing with the help of the process information
@@ -60,7 +66,8 @@ class Capture{
             multicast_ip: this.multicast_ip,
             port: this.port,
             file: this.file,
-            directory: this.directory,
+            file_name: this.file_name,
+            directory: this.docker_dir,
             id: this.id
         }
         return tmp;

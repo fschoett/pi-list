@@ -2,6 +2,7 @@ const router = require('express').Router();
 const fetch = require('node-fetch');
 const { pcapIngest } = require('../util/ingest')
 const logger = require('../util/logger');
+const program = require("../util/programArguments");
 
 //const { startMonitoring, stopMonitoring, getMonitors } = require('../util/monitor/rotatingCapture');
 const {startMonitoring, analyze, stopMonitoring} = require('../controllers/monitorController')
@@ -9,9 +10,17 @@ const { getMonitors} = require('../util/monitor/rotatingCapture');
 
 
 router.get('/', (req,res)=>{
-    var currentMonitor = getMonitors();
-    res.send( currentMonitor );
+    fetch(program.dumpServerAddr+"/captures")
+        .then( fetchRes => fetchRes.json() )
+        .then( resJson => {
+            
+            res.send( resJson );
+        })
+        .catch( err => {
+            res.sendStatus( err ); 
+        });
 });
+
 
 // Add a monitoring source and start monitoring
 router.put('/start', (req,res)=>{ startMonitoring(req,res) });
@@ -33,7 +42,7 @@ router.put('/stop', (req,res, next)=>{
 
 // Fetch the list of available interfaces on the host 
 router.get('/ifaces', (req,res) =>{
-    fetch("http://localhost:3000/ifaces")
+    fetch(program.dumpServerAddr+"/ifaces")
         .then( fetchRes => fetchRes.json())
         .then( resJson => {
             logger("dump_server").info( `Succesfully fetched interface list :${resJson}` );

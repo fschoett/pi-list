@@ -53,11 +53,11 @@ function startMonitoring(req, res){
                 if( !tmpEndpoints.length ) tmpEndpoints = [{}]
 
                 for( var i=0; i<tmpEndpoints.length; i++){
-                    fetch('http://localhost:3000/captures',{
+                    fetch( program.dumpServerAddr+'/captures',{
                         method: 'POST',
                         body: JSON.stringify({
-                            iface: program.captureInterface,
-                            directory:"captures/",
+                            iface: req.body.iface.value,
+                            directory: req.body.dir.value || 'captures/',
                             file: req.body.name,
                             multicast_ip: tmpEndpoints[i].dstAddr,
                             port: tmpEndpoints[i].dstPort
@@ -69,14 +69,12 @@ function startMonitoring(req, res){
                             console.log("ERROR trying to start capture");
                             res.sendStatus(fetchRes.status);
                         }
-                        else{
-                            return fetchRes.json();
-                        }
+                        else return fetchRes.json();
                         
                     })
                     .then( jsonRes => {
                         console.log(jsonRes);
-                        res.sendStatus(200);
+                        res.send(jsonRes);
                     })
                     .catch( (error)=> {
                         console.log( error);
@@ -90,34 +88,46 @@ function startMonitoring(req, res){
 
 function analyze(req,res,next){
     var currentMonitor = getMonitors();
-    req.pcap = generateRandomPcapDefinition(req, currentMonitor.uuid);
 
-    req.pcap.from_network = true; // sets this pcap as generated from network
-    fs.createIfNotExists(req.pcap.folder);
-  
-    var mergeOptions = {
-        filename: currentMonitor.filename,
-        duration: req.body.duration || 5,
-        outputString: currentMonitor.filename + "-mergedFile.pcap",
-        filepath: "captures/"
-    };
-    
-    // sets req.file, which is used by the ingest system
-    req.file = {
-        path: mergeOptions.filepath+mergeOptions.outputString,
-        originalname: mergeOptions.outputString,
-        filename: mergeOptions.outputString
-    };
-    
-    
-    mergeFiles( mergeOptions ).then(()=>{
-        next();
-        res.send("Finished analzying");
-    }).catch( () => {
-        console.log("An error occoured");
-        res.status(400);
-        res.send("An error occured, trying to merge files");
-    });
+    console.log(req.body);
+
+    var captureID = req.body.captureID;
+    if ( !captureID ) return res.sendStatus(400);
+
+    // Start analyying a capturing with the given captureID
+    fetch( program.dumpServerAddr+'/captures/'+captureID)
+        .then( fetchRes => fetchRes.json())
+        .then( resJson => {
+            console.log( resJson);
+            req.pcap = generateRandomPcapDefinition(req, currentMonitor.uuid);
+        
+            req.pcap.from_network = true; // sets this pcap as generated from network
+            fs.createIfNotExists(req.pcap.folder);
+            
+            var mergeOptions = {
+                filename: resJson.file_name,
+                filepath: resJson.directory,
+                outputString: resJson.file_name + "-mergedFile.pcap",
+                duration: req.body.duration || 5
+            };
+            
+            // sets req.file, which is used by the ingest system
+            req.file = {
+                path: mergeOptions.filepath+mergeOptions.outputString,
+                originalname: mergeOptions.filename,
+                filename: mergeOptions.filename
+            };
+            
+            
+            mergeFiles( mergeOptions ).then(()=>{
+                next();
+                res.send("Finished analzying");
+            }).catch( () => {
+                console.log("An error occoured");
+                res.status(400);
+                res.send("An error occured, trying to merge files");
+            });
+        });
 }
 
 

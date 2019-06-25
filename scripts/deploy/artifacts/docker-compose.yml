@@ -20,6 +20,7 @@ services:
         - EBU_LIST_LIVE_MODE=${EBU_LIST_LIVE_MODE}
         - EBU_LIST_CAPTURE_INTERFACE=${EBU_LIST_CAPTURE_INTERFACE}
         - EBU_LIST_RAMDISK=${EBU_LIST_RAMDISK}
+        - EBU_LIST_DUMP_SERVER_ADDR=${EBU_LIST_DUMP_SERVER_ADDR}
     links:
       - influxdb
       - mongo

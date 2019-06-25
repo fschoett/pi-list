@@ -55,7 +55,7 @@ class MonitorPanel extends Component {
             sdpErrors: null,
             now: this.getNow(),
             timer: null,
-            is_monitoring: props.monitor.is_monitoring,
+            is_monitoring: props.monitor.length,
             monitorStatus: monitorStatus.noCapture,
             captureId: undefined,
             captureErrorMessage: undefined,
@@ -65,7 +65,9 @@ class MonitorPanel extends Component {
             selectedIface: ""
         };
 
-        if( this.state.is_monitoring == true ){
+        console.log(props.monitor);
+
+        if( this.state.is_monitoring ){
             this.state.monitorStatus= monitorStatus.is_monitoring;
         }
         
@@ -191,7 +193,9 @@ class MonitorPanel extends Component {
             streams: this.state.streams,
             duration: this.state.duration,
             name: captureFullName,
-            capture_id: uuid()
+            capture_id: uuid(),
+            iface: this.state.selectedIface,
+            dir: this.state.selectedDir
         });
 
         this.setState(
@@ -201,7 +205,8 @@ class MonitorPanel extends Component {
             }),
             () => {
                 api.startMonitor(captureInfo)
-                    .then(() => {
+                    .then(( res ) => {
+                        console.log( res );
                         this.setState({
                             monitorStatus: monitorStatus.is_monitoring
                         });
@@ -266,35 +271,45 @@ class MonitorPanel extends Component {
             return;
         }
 
-        const captureInfo = Object.assign({}, {
-            streams: this.state.streams,
-            duration: this.state.duration,
-            name: captureFullName,
-            capture_id: uuid()
-        });
-
-
-        this.setState(
-            prevState => Object.assign({}, ...prevState, {
-                monitorStatus: monitorStatus.analyzing,
-                captureId: captureInfo.capture_id
-            }),
-            () => {
-                api.analyzeMonitoredStream(captureInfo)
-                    .then(() => {
-                        this.setState({
-                            monitorStatus: monitorStatus.is_monitoring
+        
+        api.getMonitor()
+        .then( captureIDs => {
+            for( var i=0; i<captureIDs.length; i++){
+                const captureInfo = Object.assign({}, {
+                    streams: this.state.streams,
+                    duration: this.state.duration,
+                    name: captureFullName,
+                    capture_id: uuid(),
+                    captureID: captureIDs[i]
+                });
+                this.setState(
+                    prevState => Object.assign({}, ...prevState, {
+                        monitorStatus: monitorStatus.analyzing,
+                        captureId: captureInfo.capture_id
+                    }),
+                    () => {
+                            
+                            api.analyzeMonitoredStream(captureInfo)
+                                .then((  ) => {
+                                    
+                                    this.setState({
+                                        monitorStatus: monitorStatus.is_monitoring
+                                    });
+                                })
+                                .catch((error) => {
+                                    const errorMessage = _.get(error, ['response', 'data', 'message'], '');
+            
+                                    this.setState({
+                                        monitorStatus: monitorStatus.failed,
+                                        captureErrorMessage: errorMessage
+                                    });
+                                });
                         });
-                    })
-                    .catch((error) => {
-                        const errorMessage = _.get(error, ['response', 'data', 'message'], '');
-
-                        this.setState({
-                            monitorStatus: monitorStatus.failed,
-                            captureErrorMessage: errorMessage
-                        });
-                    });
+                    
+                }
             });
+
+
 
     }
 
@@ -320,7 +335,7 @@ class MonitorPanel extends Component {
             .then( (dirList) => {
                 console.log(dirList);
                 var newDirList = dirList.map( (value) =>{
-                    return {value: value, label: value}
+                    return {value: value.dir_docker, label: value.dir_name}
                 })
                 this.setState( {availableDirs: newDirList});
                 this.setState( {selectedDir: newDirList[0]})
