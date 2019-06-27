@@ -15,18 +15,19 @@ export default {
             exact: false,
             liveOnly: true
         },
+        {
             link: routeNames.MONITOR,
             icon: 'add_to_queue',
             labelTag: 'navigation.monitor',
             exact: false,
         },
-	{
-		link: routeNames.LIVE_SOURCES,
-		icon: 'settings_input_antenna',
-		labelTag: 'navigation.live_sources',
-		exact: false,
-		liveOnly: true
-	},
+        {
+            link: routeNames.LIVE_SOURCES,
+            icon: 'settings_input_antenna',
+            labelTag: 'navigation.live_sources',
+            exact: false,
+            liveOnly: true
+        },
         // {
         //     link: routeNames.LIVE,
         //     icon: 'settings_input_antenna',

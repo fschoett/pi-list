@@ -140,8 +140,9 @@ export default {
     deleteLiveStream: streamID => request.delete(`live/streams/${streamID}`),
     changeLiveStreamName: (streamID, data) => request.patch(`live/streams/${streamID}/`, data),
     subscribeLiveStream: data => request.put('live/streams/subscribe/', data),
-<<<<<<< HEAD
     subscribePCAP: data => request.put('live/pcap/capture/', data),
+    getLiveSources: () => request.get('live/sources/'),
+    deleteLiveSources: ids => request.put('live/sources/delete', { ids }),
 
 
     /* Monitor */
@@ -150,11 +151,7 @@ export default {
     analyzeMonitoredStream: data => request.put('monitor/analyze', data),
     stopMonitor: data => request.put('monitor/stop', data),
     getIfaces: () => request.get('monitor/ifaces'),
-    getDirs: () => request.get('monitor/dirs'),
-||||||| merged common ancestors
-    subscribePCAP: data => request.put('live/pcap/capture/', data),
-======= 
-    getLiveSources: () => request.get('live/sources/'),
-    deleteLiveSources: ids => request.put('live/sources/delete', { ids }),
->>>>>>> upstream/20190624-merge
+    getDirs: () => request.get('monitor/dirs')
+
+
 };

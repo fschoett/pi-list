@@ -145,7 +145,7 @@ async function startCapturing(params) {
     // subscribe
     const subscribeToProgram = `/home/fschoett/Documents/ebu-list-dev/pi-list/build-debug/bin/subscribe_to`;
     const subscribeToOptions = {};
-    const addressSubscription = [ `-g ${params.multicast_ip}`];
+    const addressSubscription = [ "-g", params.multicast_ip];
 
     const subscribeToArguments = [
         params.iface,

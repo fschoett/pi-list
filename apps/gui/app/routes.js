@@ -9,12 +9,10 @@ import StreamPage from './pages/StreamPage';
 import LiveStreamPage from './pages/LiveStreamPage';
 import PcapsPage from './pages/PcapsPage';
 import CapturePage from './pages/CapturePage';
-<<<<<<< HEAD
 import MonitorPage from './pages/MonitorPage';
-||||||| merged common ancestors
-=======
+
 import LiveSourcesPage from './pages/LiveSourcesPage';
->>>>>>> upstream/20190624-merge
+
 import FlowList from './containers/live/FlowList';
 import ErrorPage from './components/ErrorPage';
 import errorEnum from './enums/errorEnum';
