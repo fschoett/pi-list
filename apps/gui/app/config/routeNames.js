@@ -3,9 +3,10 @@ export default {
     SETTINGS: '/settings',
     PCAPS: '/pcaps',
     CAPTURE: '/capture',
+    LIVE_SOURCES: '/live/sources',
     LIVE: '/live',
     MONITOR: '/monitor',
     NETWORK: '/network',
-    STREAMS_PAGE: 'streams',
+    LIVE_SENDERS_PAGE: '/live/senders',
     CONFIGURE: 'configure'
 };

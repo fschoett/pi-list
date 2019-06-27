@@ -10,7 +10,8 @@ RUN bash nodesource_setup.sh
 RUN apt-get install -y \
         ffmpeg \
         nodejs \
-	tcpdump
+	tcpdump \
+	zip
 
 RUN printf 'yes\n' | apt install -y wireshark-common
 
