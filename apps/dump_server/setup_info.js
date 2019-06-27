@@ -1,7 +1,7 @@
 const os = require('os');
 const config = require('config');
 
-const DOCKER_DIR_NAME = "CaptureDir";
+const DOCKER_DIR_NAME = "/app/listwebserver/CaptureDir";
 
 var networkIfaces = os.networkInterfaces();
 var captureDirs = [];

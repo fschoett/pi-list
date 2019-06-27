@@ -5,11 +5,13 @@ const Capture = require('./capture.js');
 const addBindMounts = require('./setup_docker_compose.js');
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
 var captureList = new CaptureList();
 addBindMounts();
 
 app.use( express.json() );
+
 
 app.get('/', (req, res) =>{
     res.send('Running captures: '+ captureList.getCaptures().length);
@@ -92,4 +94,4 @@ app.get('/dirs', (req,res) =>{
     res.send( dirNames );
 });
 
-app.listen(port, () => console.log(`The dump_server listens on port ${port}`));
+app.listen(port, '172.18.0.1',() => console.log(`The dump_server listens on port ${port}`));

@@ -23,7 +23,7 @@ function addBindMounts(){
     // Add the standard dir
     availableMounts.push( 'listserver:/home/');
     
-    const DST_DIR_NAME = "CaptureDir";
+    const DST_DIR_NAME = "/app/listwebserver/CaptureDir";
 
     // For each dir in the config file, add a new bind line in the yml file
     for( var i=0; i < captureDirs.length; i++ ){
@@ -45,7 +45,7 @@ function addBindMounts(){
     dckrCmpsFile_yml.services.list_server.volumes = availableMounts;
 
     // ...and write it to the disk
-    fs.writeFile( './tmp.yml', yaml.safeDump( dckrCmpsFile_yml ), (err) =>{
+    fs.writeFile( pathToDckrCmpsFile, yaml.safeDump( dckrCmpsFile_yml ), (err) =>{
         if( err ){
             console.error(`There occured an error during the writing of the new compose file : ${err}`);
         }

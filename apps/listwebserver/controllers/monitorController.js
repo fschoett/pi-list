@@ -139,7 +139,7 @@ function stopMonitoring(req, res, next){
     }
     else{
         // For now: Delete all captures.. 
-        fetch('http://localhost:3000/captures',{ method: 'DELETE' })
+        fetch(program.dumpServerAddr+'/captures',{ method: 'DELETE' })
             .then( fetchRes => {
                 if( fetchRes.ok ){
                     res.sendStatus( 200);

@@ -10,14 +10,20 @@ const { getMonitors} = require('../util/monitor/rotatingCapture');
 
 
 router.get('/', (req,res)=>{
-    fetch(program.dumpServerAddr+"/captures")
+    fetch(program.dumpServerAddr+"/captures", {
+        method: 'GET',
+        headers:{
+            'Content-Type':'application/json'
+        }
+    })
         .then( fetchRes => fetchRes.json() )
         .then( resJson => {
             
             res.send( resJson );
         })
         .catch( err => {
-            res.sendStatus( err ); 
+            console.log(err);
+            res.sendStatus( 500 ); 
         });
 });
 
@@ -56,7 +62,7 @@ router.get('/ifaces', (req,res) =>{
 
 // Fetch the list of available directorys to capture to
 router.get('/dirs', (req,res) =>{
-    fetch("http://localhost:3000/dirs")
+    fetch( program.dumpServerAddr+"/dirs")
         .then( fetchRes => fetchRes.json())
         .then( resJson => {
             logger("dump_server").info( `Succesfully fetched dir list :${resJson}` );

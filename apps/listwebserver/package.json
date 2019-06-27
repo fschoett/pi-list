@@ -24,6 +24,7 @@
     "lodash": "^4.17.5",
     "mongoose": "^5.0.9",
     "morgan": "^1.9.0",
+    "node-fetch": "^2.6.0",
     "multer": "^1.3.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",

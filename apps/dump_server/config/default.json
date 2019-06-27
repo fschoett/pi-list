@@ -6,7 +6,7 @@
             "name": "Ramdisk 01"
         },
         {
-            "path": "captures/",
+            "path": "/home/fschoett/Documents/ebu-list-dev/pi-list/apps/listwebserver/captures/",
             "type": "hdd",
             "name": "HDD dir 01"
         },
