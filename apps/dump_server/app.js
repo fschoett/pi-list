@@ -2,13 +2,13 @@ const express = require('express');
 const {networkIfaces, captureDirs} = require('./setup_info.js');
 var CaptureList = require('./capture_list.js');
 const Capture = require('./capture.js');
-const addBindMounts = require('./setup_docker_compose.js');
+const config = require('config');
+
 const app = express();
-const port = 3000;
-const cors = require('cors');
+const PORT = 3000;
 
 var captureList = new CaptureList();
-addBindMounts();
+//addBindMounts();
 
 app.use( express.json() );
 
@@ -28,8 +28,9 @@ app.post('/captures', (req,res) => {
                 captureList.addCapture( capture );
                 res.send({captureID: capture.id});
             }
-        ).catch( ()=>{
+        ).catch( (error)=>{
             console.log("An error occured trying to start a capture");
+            console.error(error);
             res.sendStatus( 400 );
         }); 
 
@@ -94,4 +95,20 @@ app.get('/dirs', (req,res) =>{
     res.send( dirNames );
 });
 
-app.listen(port, '172.18.0.1',() => console.log(`The dump_server listens on port ${port}`));
+// Kill the app!
+app.get('/kill', (req,res)=>{
+	res.send("TCPDUMP server is shutting down.. BYE!");
+	process.exit();
+});
+
+// Check if an ip for the docker0 interface has been specified in the config file
+var ip = "172.17.0.1";
+if( config.has( "docker0_interface_ip" ) ){
+	// If so, change it to this value..
+	ip = config.get("docker0_interface_ip");
+}
+
+// Start the server on the docker0 interface if possible.
+app.listen(PORT, ip, () => console.log(`The dump_server listens on \
+	port ${PORT} \
+	and ip ${ip}`));

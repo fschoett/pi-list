@@ -59,6 +59,7 @@ function startMonitoring(req, res){
                             iface: req.body.iface.value,
                             directory: req.body.dir.value || 'captures/',
                             file: req.body.name,
+                            file_name: req.body.name,
                             multicast_ip: tmpEndpoints[i].dstAddr,
                             port: tmpEndpoints[i].dstPort
                         }),

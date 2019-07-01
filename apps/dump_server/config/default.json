@@ -16,5 +16,6 @@
             "name": "No Docker Test"
         }
     ],
-    "pathToDockerCompose":"/home/fschoett/Documents/ebu-list-dev/pi-list/release/docker-compose.yml"
+    "pathToDockerCompose":"/home/fschoett/Documents/ebu-list-dev/pi-list/release/docker-compose.yml",
+    "docker0_iface_ip":"172.17.0.1"
 }

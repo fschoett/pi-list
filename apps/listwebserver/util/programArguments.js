@@ -33,15 +33,6 @@ function parseArguments(arguments) {
     config.liveMode = liveModeEnv || config.liveMode;
     console.log('config.liveMode:', config.liveMode);
 
-    const captureInterface = process.env.EBU_LIST_CAPTURE_INTERFACE || config.capture.interfaceName;
-    config.captureInterface = captureInterface;
-    console.log('config.captureInterface:',config.captureInterface);
-
-    /*
-    const ramdisk = process.env.EBU_LIST_RAMDISK || false;
-    config.ramdisk = ramdisk;
-    console.log('config.ramdisk: ', config.ramdisk);*/
-
     const dumpServerAddr = process.env.EBU_LIST_DUMP_SERVER_ADDR || 'http://localhost:3000'
     config.dumpServerAddr = dumpServerAddr;
     console.log('config.dumpServerAddr: ', config.dumpServerAddr);

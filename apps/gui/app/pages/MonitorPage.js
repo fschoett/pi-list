@@ -7,7 +7,7 @@ import { translateX } from '../utils/translation';
 const CapturePage = props => (
     <div className="row">
         <div className="col-xs-12 col-md-3 col-lg-4">
-            <Panel title={translateX('headings.monitor_manager')}>
+            <Panel title={'Monitor Manager'}>
                 <MonitorPanel />
             </Panel>
         </div>

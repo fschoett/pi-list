@@ -55,4 +55,6 @@ function addBindMounts(){
     });
 }
 
-module.exports = addBindMounts
+
+
+addBindMounts();

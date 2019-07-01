@@ -25,6 +25,7 @@ echo "Creating release folders..."
 install -d $RELEASE_DIR/server/app/bin
 install -d $RELEASE_DIR/server/app/gui
 install -d $RELEASE_DIR/server/app/listwebserver
+install -d $RELEASE_DIR/server/app/dump_server
 install -d $RELEASE_DIR/server/lib
 echo "Creating release folders... done"
 
@@ -38,6 +39,7 @@ echo
 echo "Copying apps..."
 cp -R $TOP_DIR/apps/listwebserver/* $RELEASE_DIR/server/app/listwebserver
 cp -R $TOP_DIR/apps/gui/dist/* $RELEASE_DIR/server/app/gui
+cp -R $TOP_DIR/apps/dump_server/* $RELEASE_DIR/server/app/dump_server
 echo "Copying apps... done"
 
 echo

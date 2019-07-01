@@ -143,26 +143,29 @@ async function startCapturing(params) {
 
 
     // subscribe
-    const subscribeToProgram = `/home/fschoett/Documents/ebu-list-dev/pi-list/build-debug/bin/subscribe_to`;
+    const subscribeToProgram = "../bin/subscribe_to";
+                                            //  /Documents/ebu-list-dev/pi-list/apps/dump_server
     const subscribeToOptions = {};
     const addressSubscription = [ "-g", params.multicast_ip];
 
+    
     const subscribeToArguments = [
         params.iface,
         ...addressSubscription
     ];
-
+    
     console.log(`${subscribeToProgram} ${subscribeToArguments.join(' ')}`);
-
+    
     
     // Add an offset to the subscription to prevent any displayed packet loss!
     await timeout( 1000 );
-        
+    
     const subscribeToProcess = child_process.spawn(subscribeToProgram,
         subscribeToArguments,
         subscribeToOptions
-    );
-
+        );
+        
+    //subscribeToProgram.stdout.on('data', ( data  )=>{ console.log(data)});
     subscribeToProcess.on('error', (err) => {
         console.error(`error during subscription:, ${err}`);
     });
@@ -170,9 +173,7 @@ async function startCapturing(params) {
     subscribeToProcess.on('close', (code) => {
         console.log(`subscribeTo process exited with code ${code}`);
     });
-
-    console.log("Monitor Options file");
-
+    
     return {
         'tcpdump':tcpDumpProcess,
         'subscribe_to' :subscribeToProcess
