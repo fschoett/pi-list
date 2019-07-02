@@ -1,21 +1,11 @@
 {
     "captureDirectorys":[
         {
-            "path": "/home/fschoett/Documents/ebu-list-dev/pi-list/apps/dump_server/captures/",
-            "type": "ramdisk",
-            "name": "Ramdisk 01"
-        },
-        {
-            "path": "/home/fschoett/Documents/ebu-list-dev/pi-list/apps/listwebserver/captures/",
-            "type": "hdd",
-            "name": "HDD dir 01"
-        },
-        {
-            "path": "/home/fschoett/Documents/ebu-list-dev/pi-list/apps/listwebserver/CaptureDir02/",
-            "type": "TEST",
-            "name": "No Docker Test"
+            "path": "/home/",
+            "type": "example",
+            "name": "example"
         }
-    ],
-    "pathToDockerCompose":"/home/fschoett/Documents/ebu-list-dev/pi-list/release/docker-compose.yml",
+   ],
+    "pathToDockerCompose":"../../../docker-compose.yml",
     "docker0_iface_ip":"172.17.0.1"
 }
