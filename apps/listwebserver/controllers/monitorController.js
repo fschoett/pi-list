@@ -9,13 +9,12 @@ const program = require("../util/programArguments");
 const TMP_SERVER_FLAG = false;
 
 function startMonitoring(req, res){
-           
-    
+	
             if(TMP_SERVER_FLAG){
 
                 // get Endpoints out of the request
                var tmpEndpoints = req.body.streams ? req.body.streams.filter(f => f.dstAddr && f.dstPort) : [];
-    
+
                var monitorOptions = {
                    uuid: req.body.uuid,
                    snapshotLengthBytes: "15000",
@@ -25,7 +24,7 @@ function startMonitoring(req, res){
                    interfaceName: program.captureInterface,
                    path: "captures/"        
                 };
-        
+
                 // Check if a monitoring is currently in progress
                 if( getMonitors() ){
                     if( getMonitors.is_monitoring ){
@@ -40,7 +39,7 @@ function startMonitoring(req, res){
                         return;
                     }
                 }
-        
+
                 startCapturing( monitorOptions )
                     .then( ()=>{ res.send("monitoring started");})
                     .catch( ()=> {
@@ -90,7 +89,7 @@ function startMonitoring(req, res){
 function analyze(req,res,next){
     var currentMonitor = getMonitors();
 
-    console.log(req.body);
+    console.log("Request Body for ananlyzing process : ",req.body);
 
     var captureID = req.body.captureID;
     if ( !captureID ) return res.sendStatus(400);
@@ -101,25 +100,24 @@ function analyze(req,res,next){
         .then( resJson => {
             console.log( resJson);
             req.pcap = generateRandomPcapDefinition(req, currentMonitor.uuid);
-        
+
             req.pcap.from_network = true; // sets this pcap as generated from network
             fs.createIfNotExists(req.pcap.folder);
-            
+
             var mergeOptions = {
                 filename: resJson.file_name,
                 filepath: resJson.directory,
                 outputString: resJson.file_name + "-mergedFile.pcap",
                 duration: req.body.duration || 5
             };
-            
+
             // sets req.file, which is used by the ingest system
             req.file = {
                 path: mergeOptions.filepath+mergeOptions.outputString,
                 originalname: mergeOptions.filename,
                 filename: mergeOptions.filename
             };
-            
-            
+
             mergeFiles( mergeOptions ).then(()=>{
                 next();
                 res.send("Finished analzying");
