@@ -1,16 +1,11 @@
 {
-    "captureDirectorys":[
-        {
-            "path": "home/",
-            "type": "example",
-            "name": "example",
-	    "docker":"CaptureDir00/"
-        },
-	{
-		"path":"CaptureDir00/",
-		"name":"CaptureDir00/"
-	}
-   ],
-    "pathToDockerCompose":"../../../docker-compose.yml",
-    "docker0_iface_ip":"127.0.0.1"
+	"captureDirectorys":[
+		{
+			"path": "home/",
+			"type": "example",
+			"name": "example"
+		}
+	],
+	"pathToDockerCompose":"../../../docker-compose.yml",
+	"docker0_iface_ip":"127.0.0.1"
 }
