@@ -140,7 +140,8 @@ function stopMonitoring(req, res, next){
     }
     else{
         // For now: Delete all captures.. 
-        fetch(program.dumpServerAddr+'/captures',{ method: 'DELETE' })
+	var captureID = req.body.captureID;
+	    fetch(program.dumpServerAddr+'/captures/'+captureID,{ method: 'DELETE' })
             .then( fetchRes => {
                 if( fetchRes.ok ){
                     res.sendStatus( 200);

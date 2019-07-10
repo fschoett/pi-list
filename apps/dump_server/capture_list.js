@@ -26,7 +26,7 @@ class CaptureList{
     getCaptures(){
         var output = [];
         for( var capt in this.captures ){
-            output.push( this.captures[capt].id );
+            output.push( this.captures[capt].clone() );
         }
         return output;
     }

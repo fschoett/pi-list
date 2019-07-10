@@ -1,4 +1,5 @@
 const {networkIfaces, captureDirs}  = require("./setup_info.js");
+
 const crypto = require("crypto");
 
 const {startCapturing, stopCapturing} = require("./monitor/rotatingCapture.js");
@@ -20,11 +21,14 @@ class Capture{
         var found = false;
         for( var i=0; i<captureDirs.length; i++){
             //console.log(captureDirs[i].path);
+			console.log(captureDirs[i].docker);
+			console.log(params.directory);
             if( captureDirs[i].docker == params.directory ) {
                 this.directory = captureDirs[i].path;
                 
                 console.log(captureDirs[i].path);
-                this.docker_dir= captureDirs[i].docker;
+//                this.docker_dir= captureDirs[i].docker;
+		this.docker_dir=captureDirs[i].path;
                 found = true;
                 break
             }

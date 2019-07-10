@@ -1,3 +1,4 @@
+import MonitorEntry from './MonitorEntry.js';
 import React, { Component } from 'react';
 import _ from 'lodash';
 import Button from '../../components/common/Button';
@@ -45,6 +46,7 @@ class MonitorPanel extends Component {
     constructor(props) {
         super(props);
 
+
         this.state = {
             streams: [
                 { src: '', dstAddr: '', dstPort: '' }
@@ -62,16 +64,19 @@ class MonitorPanel extends Component {
             availableIfaces: [],
             availableDirs: [],
             selectedDir: "",
-            selectedIface: ""
+		selectedIface: ""
         };
+	
+	this.state.monitorList = this.renderCaptureList(this.props.monitors);
 
+	this.state.monitors = this.props.monitors;
+	console.log(props.monitors);
         console.log(props.monitor);
 
         if( this.state.is_monitoring ){
             this.state.monitorStatus= monitorStatus.is_monitoring;
         }
-        
-        
+         
         props.monitor.streamEndpoints && (this.state.streams.splice(0,0, props.monitor.streamEndpoints));
         
         
@@ -88,6 +93,11 @@ class MonitorPanel extends Component {
         this.updateNow = this.updateNow.bind(this);
         this.getFullName = this.getFullName.bind(this);
         
+
+	    //	this.analyze = this.analyze.bind(this);
+	    //this.onCaptureListChanged = this.onCaptureListChanged.bind(this);
+	    //	this.stop= this.stop.bind(this);
+
         this.onDirChanged = this.onDirChanged.bind(this);
         this.onIfaceChanged= this.onIfaceChanged.bind(this);
         this.getDirs = this.getDirs.bind(this);
@@ -313,6 +323,33 @@ class MonitorPanel extends Component {
 
     }
 
+	analyze(id, time ){
+		api.analyzeMonitoredStream( {captureID:id,duration:time})
+		.then( (res) => {
+			console.log(res);
+		}).catch( (err) => {
+			console.log(err);
+		});
+	}
+
+	testFunc(){
+		console.log("TSETTEST");
+	}
+
+	stop(id, time ){
+		var selfi = this;
+		console.log(selfi);
+		api.stopMonitor( {captureID: id})
+		.then( (res) =>{
+			console.log(res);
+			this.setState({ monitors : this.state.monitors.filter( monitor => { return monitor.id != id } ) } );
+			this.onCaptureListChanged();
+		}).catch( (err) => {
+			console.error(err);
+		});
+	}
+
+
     getIfaces(){
         
         api.getIfaces()
@@ -367,16 +404,42 @@ class MonitorPanel extends Component {
         });
     }
 
-    
+	renderCaptureList( monitors){
+		// Render monitor list
+		var newMonitorList = monitors.map( (monitor)=>{
+			var output = (
+				<li key={monitor.id} className="row">
+					<div className="col-xs-12">
+						<hr className="row"/>
+						<MonitorEntry 
+							analyze={ (id, time) => this.analyze(id,time) }
+							stop={(id, time) => this.stop(id,time) }
+							m_id={monitor.id}
+							directory={monitor.directory}
+							iface={monitor.iface}
+							multicast_ip={monitor.multicast_ip}
+							port={monitor.port}
+							file_name={monitor.file_name}
+						></MonitorEntry>
+					</div>
+				</li>
+			);
+			return output;
+		});
+		return newMonitorList;
+	}
 
 
+	onCaptureListChanged(){
+		var newMonitorList = this.renderCaptureList(this.state.monitors);
+		this.setState( {monitorList : newMonitorList });
+		console.log("HI");
+	}
 
     render() {
         const colSizes = { labelColSize: 1, valueColSize: 11 };
 
         const captureFullName = this.getFullName();
-
-        
 
         return (
             <div>
@@ -502,7 +565,8 @@ class MonitorPanel extends Component {
                     </div>
 
                 }
-
+		<ul>{ this.state.monitorList }</ul>
+		
             </div>
         );
     }
@@ -510,6 +574,7 @@ class MonitorPanel extends Component {
 
 export default asyncLoader(MonitorPanel, {
     asyncRequests: {
-        monitor: () => api.getMonitor()
+        monitor: () => api.getMonitor(),
+		monitors: ()=> api.getMonitors()
     }
 });
