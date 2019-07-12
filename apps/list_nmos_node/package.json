@@ -1,0 +1,15 @@
+{
+  "name": "list_nmos_node",
+  "version": "1.0.0",
+  "description": "An application which is supposed to work as an interface between LIST and NMOS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fabian Schoettler",
+  "license": "ISC",
+  "dependencies": {
+    "nmos-ledger": "^1.0.20",
+    "node-fetch": "^2.6.0"
+  }
+}

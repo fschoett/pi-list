@@ -103,9 +103,9 @@ app.get('/kill', (req,res)=>{
 
 // Check if an ip for the docker0 interface has been specified in the config file
 var ip = "172.17.0.1";
-if( config.has( "docker0_interface_ip" ) ){
+if( config.has( "docker0_iface_ip" ) ){
 	// If so, change it to this value..
-	ip = config.get("docker0_interface_ip");
+	ip = config.get("docker0_iface_ip");
 }
 
 // Start the server on the docker0 interface if possible.

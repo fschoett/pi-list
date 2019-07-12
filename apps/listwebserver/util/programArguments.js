@@ -33,7 +33,7 @@ function parseArguments(arguments) {
     config.liveMode = liveModeEnv || config.liveMode;
     console.log('config.liveMode:', config.liveMode);
 
-    const dumpServerAddr = process.env.EBU_LIST_DUMP_SERVER_ADDR || 'http://172.17.0.1:3000'
+    const dumpServerAddr = process.env.EBU_LIST_DUMP_SERVER_ADDR || 'http://127.0.0.1:3000'
     config.dumpServerAddr = dumpServerAddr;
     console.log('config.dumpServerAddr: ', config.dumpServerAddr);
 

@@ -18,7 +18,8 @@ class Capture{
 
 		// Check if the give directory is valid and select the corresponding 
 		// host-path as the capturing directory
-		var found = false;
+		this.directory= "captures/";
+		this.docker_dir= "captures/";
 		for( var i=0; i<captureDirs.length; i++){
 
 			if( captureDirs[i].docker == params.directory ) {
@@ -28,8 +29,6 @@ class Capture{
 				break
 			}
 		}
-		if( !found) throw new Error(`Directory ${params.directory} not found or is not allowed!`);
-		
 
 		this.multicast_ip = params.multicast_ip;
 		this.port = params.port;
