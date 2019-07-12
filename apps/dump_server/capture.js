@@ -25,11 +25,11 @@ class Capture{
 			if( captureDirs[i].docker == params.directory ) {
 				this.directory = captureDirs[i].path;
 				this.docker_dir=captureDirs[i].path;
-				found = true;
 				break
 			}
 		}
 
+		this.from_nmos = params.from_nmos;
 		this.multicast_ip = params.multicast_ip;
 		this.port = params.port;
 		this.file = params.file_name || 'tmp-%S.pcap';
@@ -66,7 +66,8 @@ class Capture{
 			file: this.file,
 			file_name: this.file_name,
 			directory: this.docker_dir,
-			id: this.id
+			id: this.id,
+			from_nmos: this.from_nmos
 		}
 		return tmp;
 	}

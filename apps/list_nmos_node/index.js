@@ -1,31 +1,37 @@
-// ====================================================================================
-//                                IMPORTANT NODE !!!
-// ------------------------------------------------------------------------------------
-// For the event 'subscription' to work, the NodeAPI file has to be modified before
-// At the moment there is an open pull request at the ledger Repo, but it
-// seems that there is no activity any more
+// ============================================================================
+//                           IMPORTANT NODE !!!
+// ----------------------------------------------------------------------------
+// For the event 'subscription' to work, the NodeAPI file has to be modified 
+// before. At the moment there is an open pull request at the ledger Repo, but 
+// it seems that there is no activity any more
 //
 // Also this method of checking for a change is only temporary, as
-// for later versions of the API there will probably be other callbacks!...... i hope..
-// ====================================================================================
+// for later versions of the API there will probably be other callbacks!
+// ...i hope..
+// ============================================================================
 
 const ledger = require('nmos-ledger');
 const fetch  = require('node-fetch');
 
+// TODO: Find a way of retrieving those dynamically
 const LIST_GUI_URL = "http://localhost:8080";
-const LIST_API_URL = "";
-
 const MONITOR_URL = "http://127.0.0.1:3000/";
 
 const NODE_PORT = 3003;
-const RECEIVER_NUMBER = 4;
 
 const NODE_LABEL    = "LIST Node";
 const NODE_URL      = "http://list.local:"+NODE_PORT;
 const NODE_HOSTNAME = "list";
 const NODE_TAGS     = null;
-const NODE_SERVICES = [{ "href": LIST_GUI_URL, "type": "Capturing and Analyzin" }];
+const NODE_SERVICES = [{ 
+	"href": LIST_GUI_URL, 
+	"type": "Capturing and Analyzin" 
+}];
 
+// Holds the record of all devices and if they are currently receiving
+// example: monitor_map : {
+// 		<receiver_id> : { iface : <iface> , monitor_id : <monitor_id> }
+// } 
 const monitor_map   = {};
 
 
@@ -44,17 +50,22 @@ var node = new ledger.Node(
 var store   = new ledger.NodeRAMStore( node );
 var nodeAPI = new ledger.NodeAPI( NODE_PORT, store );
 
-// Create the List device. This should also list a service referencing to the LIST GUI
+// Create the List device. 
+// This should also list a service referencing to the LIST GUI
 var list_device = new ledger.Device( null, null, "LIST Device", null, node.id);
 nodeAPI.putResource(list_device);
 
+// Create one receiver for each interface that the host has.
 addReceivers();
 
-
+// Create callback for the topic subscription 
+// -> Is fired if  the receiver gets connected
+// .. or disconnected
 nodeAPI.on('modify', data => {
 	if ( data.topic == '/subscription/' ) on_subscription( data );
 });
 
+// Start the NodeAPI
 nodeAPI.init().start();
 
 async function addReceivers(){
@@ -76,6 +87,7 @@ async function addReceivers(){
 			null  
 		);
 		
+		// Add receiver to the entry
 		monitor_map[ tmp_receiver.id ] = {
 			monitor_id : "",
 			iface: ifaces[i]
@@ -120,7 +132,8 @@ async function addMonitor( receiverID, multicast_ip, port ){
 		"iface" : monitor_map[ receiverID ].iface,
 		"file": "NMOS_RECORDING",
 		"multicast_ip": multicast_ip,
-		"port" : port
+		"port" : port,
+		"from_nmos" : true
 	}
 
 	// Check if there is a capture still running
@@ -130,7 +143,6 @@ async function addMonitor( receiverID, multicast_ip, port ){
 	}
 
 	try{
-
 		var res = await fetch( MONITOR_URL+'captures' , {
 				method:'POST',
 				body: JSON.stringify(body),
@@ -143,7 +155,7 @@ async function addMonitor( receiverID, multicast_ip, port ){
 			console.error( "something went wrong... ", res);
 			return
 		}
-		json = await res.json()
+		var json = await res.json()
 		monitor_map[ receiverID ].monitor_id = json.captureID;
 		console.log( " Successfully posted monitor : ", json);
 	}
@@ -167,17 +179,4 @@ function removeMonitor( receiverID ) {
 			else console.error( "Error trying to stop monitor!" );
 		})
 		.catch( err => console.error );
-}
-
-
-const DUMMY_MONITOR_BODY = {
-	// How to get the interface?
-	"iface":"ens33",
-	// Build a nice filename
-	"file":"test",
-	// Use a directory special to the NMOS monitoring?
-	"directory": "CaptureDir00/",
-	// Extract from a service entry maybe?
-	"multicast_ip":"239.102.1.100",
-	"port":"54176"
 }

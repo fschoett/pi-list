@@ -1,18 +1,19 @@
-import MonitorEntry from './MonitorEntry.js';
-import React, { Component } from 'react';
-import _ from 'lodash';
-import Button from '../../components/common/Button';
+import notifics from '../../utils/notifications'
+import websocketEventsEnum from '../../enums/websocketEventsEnum';
+import StreamsListPanel    from './StreamsListPanel';
+import React, { Component }from 'react';
 import { translateC } from '../../utils/translation';
-import Select from 'react-select';
-import api from '../../utils/api';
+import MonitorEntry   from './MonitorEntry.js';
 import asyncLoader from '../../components/asyncLoader';
-import Input from '../../components/common/Input';
+import Input     from '../../components/common/Input';
 import FormInput from '../../components/common/FormInput';
 import websocket from '../../utils/websocket';
-import websocketEventsEnum from '../../enums/websocketEventsEnum';
-import StreamsListPanel from './StreamsListPanel';
+import Button from '../../components/common/Button';
+import Select from 'react-select';
+import api    from '../../utils/api';
 import moment from 'moment';
-import uuid from 'uuid/v4';
+import uuid   from 'uuid/v4';
+import _ from 'lodash';
 
 const monitorStatus = {
 	noCapture: 'noCapture',
@@ -67,18 +68,18 @@ class MonitorPanel extends Component {
 			selectedDir: "",
 			selectedIface: ""
 		};
-
+		notifics.success( {} );
 		this.state.monitorList = this.renderCaptureList(this.props.monitors);
 
 		this.state.monitors = this.props.monitors;
-		console.log(props.monitors);
-		console.log(props.monitor);
 
 		if( this.state.is_monitoring ){
 			this.state.monitorStatus= monitorStatus.is_monitoring;
 		}
 
-		props.monitor.streamEndpoints && (this.state.streams.splice(0,0, props.monitor.streamEndpoints));
+		props.monitor.streamEndpoints && (
+			this.state.streams.splice(0,0, props.monitor.streamEndpoints)
+		);
 
 		this.startMonitor = this.startMonitor.bind(this);
 		this.onPcapProcessingEnded = this.onPcapProcessingEnded.bind(this);
@@ -116,14 +117,6 @@ class MonitorPanel extends Component {
 		this.setState({ timer });
 	}
 
-	stopTimer() {
-		if (this.state.timer) {
-			clearInterval(this.state.timer);
-		}
-
-		this.setState({ timer: null });
-	}
-
 	getNow() {
 		return moment(Date.now()).format('YYYYMMDD-hhmmss');
 	}
@@ -157,7 +150,6 @@ class MonitorPanel extends Component {
 
 	startMonitor() {
 		this.setState( {is_monitoring: true});
-		this.stopTimer();
 
 		const captureFullName = this.getFullName();
 		if (captureFullName === '') {
@@ -205,26 +197,44 @@ class MonitorPanel extends Component {
 	}
 
 	analyze(id, time ){
-		api.analyzeMonitoredStream( {captureID:id,duration:time})
+		return api.analyzeMonitoredStream( {captureID:id,duration:time})
 			.then( (res) => {
 				console.log(res);
+				if ( res.ok ){
+					notifics.success( {
+						title:"Success", 
+						message:"LIST will now analyze the capture in the background" 
+					});
+					return "success"
+				}
+				else{
+					notifics.error( {
+						title:"Error", 
+						message:"An error occured while trying to analyze the stream..." 
+					});
+					return "analysis failed.."
+				}
 			}).catch( (err) => {
 				console.log(err);
+				notifics.error( {
+					title:"Error", 
+					message:"An error occured while trying to analyze the stream..." 
+				});
+				return "analysis failed.."
 			});
 	}
 
 	stop(id, time ){
-		var selfi = this;
-		console.log(selfi);
 		api.stopMonitor( {captureID: id})
 			.then( (res) =>{
-				console.log(res);
-				var newMonitorList;
-				newMonitorList = this.state.monitors.filter( monitor => {
+
+				var newMonitorList = this.state.monitors.filter( monitor => {
 					return monitor.id != id
 				});
+
 				this.setState({ monitors : newMonitorList });
 				this.onCaptureListChanged();
+
 			}).catch( (err) => {
 				console.error(err);
 			});
@@ -299,6 +309,8 @@ class MonitorPanel extends Component {
 							multicast_ip={monitor.multicast_ip}
 							port={monitor.port}
 							file_name={monitor.file_name}
+							from_nmos={monitor.from_nmos}
+							status="ja"
 						></MonitorEntry>
 					</div>
 				</li>
@@ -312,12 +324,10 @@ class MonitorPanel extends Component {
 	onCaptureListChanged(){
 		var newMonitorList = this.renderCaptureList(this.state.monitors);
 		this.setState( {monitorList : newMonitorList });
-		console.log("HI");
 	}
 
 	render() {
 		const colSizes = { labelColSize: 1, valueColSize: 11 };
-
 		const captureFullName = this.getFullName();
 
 		return (
@@ -345,13 +355,17 @@ class MonitorPanel extends Component {
 					</div>
 
 					<div className="lst-sdp-config lst-no-margin">
-							<StreamsListPanel streams={this.state.streams} handleChange={this.onStreamsChanged} />
+						<StreamsListPanel 
+							streams={this.state.streams} 
+							handleChange={this.onStreamsChanged} />
 						<hr/> 
 						<FormInput icon="receipt" {...colSizes}>
 							<Input
 								type="text"
 								value={this.state.captureDescription}
-								onChange={evt => this.onCaptureDescriptionChanged(evt.target.value)}
+								onChange={evt => {
+									this.onCaptureDescriptionChanged(evt.target.value)
+								}}
 							/>
 						</FormInput>
 					</div>
@@ -359,11 +373,16 @@ class MonitorPanel extends Component {
 					<hr />
 					<div className="row lst-align-items-center lst-no-margin lst-margin--bottom-1">
 						<div className="col-xs-11 lst-no-margin">
-							<FormInput {...colSizes} icon="label" className="lst-no-margin">
+							<FormInput {...colSizes} 
+								icon="label" 
+								className="lst-no-margin"
+							>
 								<Input
 									type="text"
 									value={captureFullName}
-									onChange={evt => this.onCaptureFullNameChanged(evt.target.value)}
+									onChange={evt => {
+										this.onCaptureFullNameChanged(evt.target.value)}
+									}
 								/>
 							</FormInput>
 						</div>
@@ -374,7 +393,9 @@ class MonitorPanel extends Component {
 								type="info"
 								link
 								disabled={this.state.captureFullName === undefined}
-								onClick={() => this.setState({ captureFullName: undefined })}
+								onClick={() => {
+									this.setState({ captureFullName: undefined })}
+								}
 							/>
 						</div>
 					</div>
@@ -384,7 +405,10 @@ class MonitorPanel extends Component {
 
 				<div className="row lst-align-items-center">
 					<div className="col-xs-10">
-						{getCaptureStatusMessage(this.state.monitorStatus, this.state.captureErrorMessage)}
+						{getCaptureStatusMessage(
+							this.state.monitorStatus,
+							this.state.captureErrorMessage
+						)}
 					</div>
 					<div className="col-xs-2 lst-text-right end-xs">
 						<Button
