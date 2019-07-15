@@ -146,7 +146,6 @@ export default {
 
 
     /* Monitor */
-    getMonitor: () => request.get('monitor/'),
 	getMonitors: () => request.get('monitor/'),
     startMonitor: data => request.put('monitor/start', data),
     analyzeMonitoredStream: data => request.put('monitor/analyze', data),

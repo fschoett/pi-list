@@ -1,3 +1,4 @@
+import Loader from '../../components/common/Loader'
 import React, { Component } from 'react';
 import Input  from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -28,7 +29,20 @@ class MonitorEntry extends Component {
 
 	render(){
 		return (
-			<div className="row lst-align-items-center lst-no-margin" >
+			<div className="row lst-align-items-center lst-no-margin" style={{position:"relative"}}>
+				{ this.props.from_nmos && (
+					<span 
+						className="lst-align-items-center"
+						style={ {
+							color: "#6594dd",
+							position: "absolute",
+							right: 0,
+							top: 0,
+							"fontWeight": "bold",
+							"textDecoration": "underline overline",
+  							"textDecorationColor": "white"
+						} }>N M O S</span>
+				)}
 				<div className="col-xs-4">
 					<span className="row">IP: {this.props.multicast_ip}</span>
 					<span className="row">Port: {this.props.port} </span>
@@ -50,37 +64,37 @@ class MonitorEntry extends Component {
 						})}
 					/>
 				</div>
-				<div className="col-xs-2 lst-text-right end-ex">
-					<Button
-						type ="info"
-						label="Analyze"
-						onClick={ () => {
-							this.setState( {status : "analyzing"} );
-							this.analyze(this.props.m_id, this.state.duration)
-								.then( res => {
-									this.setState( { status : res } );
-									this.statusTimeout();
-								})
-								.catch( err => this.setState( { state: "ERROR" }) );
-							}
-						}
-					/>
-				</div>
-				{ !this.props.from_nmos ? (
-					<div className="col-xs-2 lst-text-right end-ex">
+				<div className="col-xs-4 center-xs">
+					{ this.state.status ==  "analyzing" ? (
+						<div className="row lst-align-items-center" > 
+							<Loader className="col-xs-6 center-xs" size="small"></Loader>
+						</div>
+					) : (
 						<Button
-							type ="danger"
-							label="Cancel"
+							type ="info"
+							label="Analyze"
 							onClick={ () => {
-								this.stop(this.props.m_id, this.state.duration)}
+								this.setState( {status : "analyzing"} );
+								this.analyze(this.props.m_id, this.state.duration)
+									.then( res => {
+										this.setState( { status : res } );
+										this.statusTimeout();
+									})
+									.catch( err => this.setState( { state: "ERROR" }) );
+								}
 							}
 						/>
-					</div>
-				) : (
-					<span className="col-xs-2 lst-text-right end-ex" > NMOS </span>
-				)	
-				}
-
+					)}
+					{ !this.props.from_nmos && (
+						<Button
+								type ="danger"
+								label="Cancel"
+								onClick={ () => {
+									this.stop(this.props.m_id, this.state.duration)}
+								}
+							/>
+					)}
+				</div>
 			</div>
 		);
 	}

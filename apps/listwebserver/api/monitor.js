@@ -6,7 +6,7 @@ const program = require("../util/programArguments");
 
 //const { startMonitoring, stopMonitoring, getMonitors } = require('../util/monitor/rotatingCapture');
 const {startMonitoring, analyze, stopMonitoring} = require('../controllers/monitorController')
-const { getMonitors} = require('../util/monitor/rotatingCapture');
+const { getMonitors } = require('../util/monitor/rotatingCapture');
 
 
 router.get('/', (req,res)=>{
@@ -18,7 +18,6 @@ router.get('/', (req,res)=>{
     })
         .then( fetchRes => fetchRes.json() )
         .then( resJson => {
-            
             res.send( resJson );
         })
         .catch( err => {
