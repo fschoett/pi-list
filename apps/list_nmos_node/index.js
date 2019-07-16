@@ -12,6 +12,7 @@
 
 const ledger = require('nmos-ledger');
 const fetch  = require('node-fetch');
+const sdpTrans=require('sdp-transform');
 
 // TODO: Find a way of retrieving those dynamically
 const LIST_GUI_URL = "http://localhost:8080";
@@ -105,14 +106,21 @@ function getIfaces() {
 
 // Callback triggered when the subscription event has been fired
 // Calls the LIST api to start or stop a monitor on the respective receiver
-function on_subscription( data ){
+async function on_subscription( data ){
 	console.log( "Someone did a subscription Oo" );
 	console.log( data.data[0].sender );
 	console.log( data.data );
 	if ( data.data[0].sender ){
 		//Start Monitor
 		console.log( "Start monitor.." );
-		addMonitor( data.data[0].receiver.id, "239.101.1.1", "54276" );
+
+		var SDPHref = retrieveSDPHref( data.data[0].sender ); 
+		var SDPFile = await fetchSDPFile( SDPHref );
+		var parsedSDP = await parseSDPFile( SDPFile );
+		var multicastIP = extractMulticastIP( parsedSDP );
+		var sourcePort  = extractPort( parsedSDP );
+		console.log( `Multicast IP : ${multicastIP} - Port : ${sourcePort}`);
+		addMonitor( data.data[0].receiver.id, multicastIP, sourcePort);
 	} 
 	else {
 		// Stop Monitor
@@ -121,6 +129,33 @@ function on_subscription( data ){
 	}
 
 }
+
+
+function retrieveSDPHref( sender ){
+	return sender.manifest_href;
+}
+
+async function fetchSDPFile( href ){
+	var res = await fetch( href );
+	if ( res.ok ){
+		var sdp = await res.text();
+		return sdp
+	}
+}
+
+async function parseSDPFile( sdp ){
+	return sdpTrans.parse( sdp )
+}
+
+function extractMulticastIP ( parsedSDP ){
+	console.log( parsedSDP.media[0] );
+	return parsedSDP.media[0].connection.ip.split("/")[0];
+}
+
+function extractPort ( parsedSDP ){
+	return  parsedSDP.media[0].port ;
+}
+
 // start a new monitoring process
 // First check if there is already a monitoring process running
 // If so, stopt it first before starting the new one
