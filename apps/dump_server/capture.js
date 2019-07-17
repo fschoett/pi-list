@@ -18,13 +18,14 @@ class Capture{
 
 		// Check if the give directory is valid and select the corresponding 
 		// host-path as the capturing directory
-		this.directory= "captures/";
-		this.docker_dir= "captures/";
+		this.directory= captureDirs[0].path;
+		this.docker_dir= captureDirs[0].docker;
+
 		for( var i=0; i<captureDirs.length; i++){
 
 			if( captureDirs[i].docker == params.directory ) {
 				this.directory = captureDirs[i].path;
-				this.docker_dir=captureDirs[i].path;
+				this.docker_dir=captureDirs[i].docker;
 				break
 			}
 		}

@@ -26,6 +26,7 @@ install -d $RELEASE_DIR/server/app/bin
 install -d $RELEASE_DIR/server/app/gui
 install -d $RELEASE_DIR/server/app/listwebserver
 install -d $RELEASE_DIR/server/app/dump_server
+install -d $RELEASE_DIR/server/app/list_nmos_node
 install -d $RELEASE_DIR/server/lib
 echo "Creating release folders... done"
 
@@ -40,6 +41,7 @@ echo "Copying apps..."
 cp -R $TOP_DIR/apps/listwebserver/* $RELEASE_DIR/server/app/listwebserver
 cp -R $TOP_DIR/apps/gui/dist/* $RELEASE_DIR/server/app/gui
 cp -R $TOP_DIR/apps/dump_server/* $RELEASE_DIR/server/app/dump_server
+cp -R $TOP_DIR/apps/list_nmos_node/* $RELEASE_DIR/server/app/list_nmos_node
 echo "Copying apps... done"
 
 echo

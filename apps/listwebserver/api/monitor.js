@@ -34,7 +34,7 @@ router.put('/start', (req,res)=>{ startMonitoring(req,res) });
 // Analyze the past x seconds
 router.put('/analyze', (req,res,next)=>{
         analyze(req,res,next);
-    }, pcapIngest
+    },pcapIngest
 );
 
 

@@ -1,10 +1,20 @@
 version: "3.7"
+x-environment: &env-vars
+  - 'EBU_LIST_WEB_APP_DOMAIN=http://172.17.0.1:8080'
+  - 'EBU_LIST_LIVE_MODE=${EBU_LIST_LIVE_MODE}'
+  - 'EBU_LIST_CAPTURE_INTERFACE=${EBU_LIST_CAPTURE_INTERFACE}'
+  - 'EBU_LIST_RAMDISK=${EBU_LIST_RAMDISK}'
+  - 'EBU_LIST_DUMP_SERVER_ADDR=http://172.17.0.1:3000'
 services:
   influxdb:
     image: influxdb:1.4.2
     volumes:
       - influxdb:/var/lib/influxdb
 
+  nmos_node:
+    build: ./server/app/list_nmos_node/
+    network_mode: host
+    environment: *env-vars
   mongo:
     image: mongo:4.1.10
     volumes:
@@ -23,12 +33,7 @@ services:
     ports:
       - "8080:8080"
       - "3030:3030"
-    environment:
-        - EBU_LIST_WEB_APP_DOMAIN=${EBU_LIST_WEB_APP_DOMAIN}
-        - EBU_LIST_LIVE_MODE=${EBU_LIST_LIVE_MODE}
-        - EBU_LIST_CAPTURE_INTERFACE=${EBU_LIST_CAPTURE_INTERFACE}
-        - EBU_LIST_RAMDISK=${EBU_LIST_RAMDISK}
-        - EBU_LIST_DUMP_SERVER_ADDR=http://172.17.0.1:3000
+    environment: *env-vars
     links:
       - influxdb
       - mongo

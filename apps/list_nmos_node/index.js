@@ -16,7 +16,7 @@ const sdpTrans=require('sdp-transform');
 
 // TODO: Find a way of retrieving those dynamically
 const LIST_GUI_URL = "http://localhost:8080";
-const MONITOR_URL = "http://127.0.0.1:3000/";
+const MONITOR_URL =  "http://172.17.0.1:3000/";
 
 const NODE_PORT = 3003;
 
@@ -26,7 +26,7 @@ const NODE_HOSTNAME = "list";
 const NODE_TAGS     = null;
 const NODE_SERVICES = [{ 
 	"href": LIST_GUI_URL, 
-	"type": "Capturing and Analyzin" 
+	"type": "Capturing and Analyzing" 
 }];
 
 // Holds the record of all devices and if they are currently receiving
@@ -51,29 +51,40 @@ var node = new ledger.Node(
 var store   = new ledger.NodeRAMStore( node );
 var nodeAPI = new ledger.NodeAPI( NODE_PORT, store );
 
+// Create one receiver for each interface that the host has.
+
+var list_device = "";
+
+initNode();
+
 // Create the List device. 
 // This should also list a service referencing to the LIST GUI
-var list_device = new ledger.Device( null, null, "LIST Device", null, node.id);
-nodeAPI.putResource(list_device);
+async function initNode(){
+	// Add callbacks
+	
+	// Create callback for the topic subscription 
+	// -> Is fired if  the receiver gets connected
+	// .. or disconnected
+	nodeAPI.on('modify', data => {
+		if ( data.topic == '/subscription/' ) on_subscription( data );
+	});
 
-// Create one receiver for each interface that the host has.
-addReceivers();
+	// get interfaces
 
-// Create callback for the topic subscription 
-// -> Is fired if  the receiver gets connected
-// .. or disconnected
-nodeAPI.on('modify', data => {
-	if ( data.topic == '/subscription/' ) on_subscription( data );
-});
-
-// Start the NodeAPI
-nodeAPI.init().start();
-
-async function addReceivers(){
-	// Get ifaces
 	var ifaces = await getIfaces();
-	//var ifaces = [ "ens1f0", "ens3" ];
+	console.log(" Again the Iface array : ", ifaces );
+	list_device = new ledger.Device( null, null, `${ifaces.toString()} LIST Device`, null, node.id);
+	nodeAPI.putResource( list_device );
 
+	// add receivers
+	addReceivers( ifaces );
+	nodeAPI.init().start()	
+	// init node
+}
+
+
+async function addReceivers( ifaces ){
+	console.log(" Adding receivers with theese interfaces: ", ifaces);
 	for( var i=0; i<ifaces.length; i++ ){
 		var tmp_receiver = new ledger.Receiver( 
 			null, 
@@ -99,11 +110,22 @@ async function addReceivers(){
 	// Add Node to store
 }
 
-function getIfaces() {
-	return fetch( MONITOR_URL+'ifaces' )
-		.then( res => res.json() )
+async function getIfaces() {
+	var output = [];
+
+	while( output.length == 0 ){
+		console.log("Length of interfaces 0 => Try again");
+		var res = await fetch( MONITOR_URL+'ifaces' )
+		var output= await res.json();
+		await timeout( 1000 );
+	}
+	console.log( "Output of interfaces : ", output);
+	return output;
 }
 
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 // Callback triggered when the subscription event has been fired
 // Calls the LIST api to start or stop a monitor on the respective receiver
 async function on_subscription( data ){
