@@ -15,8 +15,8 @@ const fetch  = require('node-fetch');
 const sdpTrans=require('sdp-transform');
 
 // TODO: Find a way of retrieving those dynamically
-const LIST_GUI_URL = "http://localhost:8080";
-const MONITOR_URL =  "http://172.17.0.1:3000/";
+const LIST_GUI_URL = process.env.EBU_LIST_WEB_APP_DOMAIN ||  "http://localhost:8080";
+const MONITOR_URL =  process.env.EBU_LIST_DUMP_SERVER_ADDR || "http://172.17.0.1:3000";
 
 const NODE_PORT = 3003;
 
@@ -115,7 +115,7 @@ async function getIfaces() {
 
 	while( output.length == 0 ){
 		console.log("Length of interfaces 0 => Try again");
-		var res = await fetch( MONITOR_URL+'ifaces' )
+		var res = await fetch( MONITOR_URL+'/ifaces' )
 		var output= await res.json();
 		await timeout( 1000 );
 	}
@@ -200,7 +200,7 @@ async function addMonitor( receiverID, multicast_ip, port ){
 	}
 
 	try{
-		var res = await fetch( MONITOR_URL+'captures' , {
+		var res = await fetch( MONITOR_URL+'/captures' , {
 				method:'POST',
 				body: JSON.stringify(body),
 				headers: { 'Content-Type': 'application/json' }
@@ -225,7 +225,7 @@ function removeMonitor( receiverID ) {
 	// Find a monitor bz its ID and stop it
 	// Also remove it from the map
 	console.log( "Monitor ID : ", monitor_map[ receiverID ].monitor_id );
-	fetch( MONITOR_URL+'captures/'+ monitor_map[ receiverID ].monitor_id, {
+	fetch( MONITOR_URL+'/captures/'+ monitor_map[ receiverID ].monitor_id, {
 			method: 'DELETE'
 		})
 		.then( res => { 
