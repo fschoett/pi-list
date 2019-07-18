@@ -145,7 +145,7 @@ function pcapFullAnalysis(req, res, next) {
         .then((output) => {
             logger('st2110_extractor').info(output.stdout);
             logger('st2110_extractor').info(output.stderr);
-            postProcessSdpFiles(pcapFolder);
+			//postProcessSdpFiles(pcapFolder);
             next();
         })
         .catch((output) => {

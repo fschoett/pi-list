@@ -135,15 +135,15 @@ class MonitorPanel extends Component {
 		});
 }
 
-analyze(id, time ){
-	return api.analyzeMonitoredStream( {captureID:id,duration:time})
-		.then( (res) => {
-			console.log(res);
-			if ( res.ok ){
-				Notifications.success( {
-						title:"Success", 
-						message:"LIST will now analyze the capture in the background" 
-					});
+	analyze(id, time ){
+		return api.analyzeMonitoredStream( {captureID:id,duration:time})
+			.then( (res) => {
+				console.log(res);
+				if ( res ){
+					Notifications.success( {
+							title:"Success", 
+							message:"LIST will now analyze the capture in the background" 
+						});
 					return "success"
 				}
 				else{
