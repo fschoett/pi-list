@@ -10,7 +10,7 @@ import LiveStreamPage from './pages/LiveStreamPage';
 import PcapsPage from './pages/PcapsPage';
 import CapturePage from './pages/CapturePage';
 import MonitorPage from './pages/MonitorPage';
-
+import WorkflowsPage from './pages/WorkflowsPage';
 import LiveSourcesPage from './pages/LiveSourcesPage';
 
 import FlowList from './containers/live/FlowList';
