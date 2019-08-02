@@ -33,8 +33,29 @@ httpServer.listen(programArguments.port);
 if (programArguments.liveMode) {
     logger('server').info(`Starting message queue worker`);
     require('./worker/streamUpdates');
+
+    const { createManager } = require('./managers/probes');
+    createManager(programArguments)
+        .then(
+            probesManager =>
+                (programArguments.probesManager = probesManager)
+        )
+        .catch(err =>
+            logger('server').error(`Error creating probes manager: ${err}`)
+        );
 }
 
 httpServer.on('error', onError);
 httpServer.on('listening', onListening);
-process.on('SIGINT', onProcessClosed);
+
+const closeServer = async () => {
+    logger('server').info('Shutting down');
+    if (programArguments.probesManager) {
+        programArguments.probesManager.close();
+    }
+    onProcessClosed();
+};
+
+process.on('SIGINT', async () => {
+    await closeServer();
+});

@@ -10,7 +10,7 @@ import api from 'utils/api';
 import chartFormatters from 'utils/chartFormatters';
 import Button from 'components/common/Button';
 
-const AudioPage = (props) => {
+const AudioPage = props => {
     const streamInfo = props.streamInfo;
     const statistics = streamInfo.statistics;
     const analysis = streamInfo.global_audio_analysis;
@@ -19,39 +19,76 @@ const AudioPage = (props) => {
 
     return (
         <Scrollbars>
-            <Panel className="lst-stream-info-tab">
-                <div className="row lst-full-height">
-                    <div className="col-xs-12 col-md-4">
-                        <NetworkInfo stream={props.streamInfo} />
-                        <AudioInfo {...mediaInfo} />
-                        <AudioStatistics {...statistics} tsdf_max={analysis.tsdf_max} />
+            <Panel className='lst-stream-info-tab'>
+                <div className='row lst-full-height'>
+                    <div className='col-xs-12 col-md-4'>
+                        <NetworkInfo stream={ props.streamInfo } />
+                        <AudioInfo { ...mediaInfo } />
+                        <AudioStatistics
+                            { ...statistics }
+                            analysis={ analysis }
+                        />
                     </div>
 
-                    <div className="col-xs-12 col-md-8">
-                        <AudioExplorer pcapID={props.pcapID} streamID={props.streamID} channelNum={mediaInfo.number_channels} />
+                    <div className='col-xs-12 col-md-8'>
+                        <AudioExplorer
+                            pcapID={ props.pcapID }
+                            streamID={ props.streamID }
+                            channelNum={ mediaInfo.number_channels }
+                        />
                         <LineChart
-                            asyncData={() => api.getAudioTransitDelay(props.pcapID, props.streamID, first_packet_ts, last_packet_ts)}
-                            xAxis={chartFormatters.getTimeLineLabel}
-                            data={chartFormatters.stdDeviationMeanMinMaxLineChart}
-                            title="Transit Time"
-                            yAxisLabel="Delay (μs)"
-                            height={300}
-                            lineWidth={3}
+                            asyncData={ () =>
+                                api.getAudioRtpTsVsPktTs(
+                                    props.pcapID,
+                                    props.streamID,
+                                    first_packet_ts,
+                                    last_packet_ts,
+                                    analysis.rtp_ts_vs_pkt_ts.range.min,
+                                    analysis.rtp_ts_vs_pkt_ts.range.max,
+                                )
+                            }
+                            xAxis={ chartFormatters.getTimeLineLabel }
+                            data={ chartFormatters.statsLineChart }
+                            title='Delta from RTP TS to packet TS'
+                            yAxisLabel='Delay (μs)'
+                            height={ 300 }
+                            lineWidth={ 3 }
                             legend
                         />
                         <LineChart
                             // provide packet_time and tsdf to plot the yellow tolerance and red limit lines respectively
-                            asyncData={() => api.getAudioTimeStampedDelayFactor(props.pcapID, props.streamID, first_packet_ts, last_packet_ts, mediaInfo.packet_time * 1000, analysis.tsdf_max)}
-                            xAxis={chartFormatters.getTimeLineLabel}
-                            data={chartFormatters.singleValueLineThresholdChart}
-                            title="TimeStamped Delay Factor"
-                            yAxisLabel="TSDF (μs)"
-                            height={300}
-                            lineWidth={3}
+                            asyncData={ () =>
+                                api.getAudioTimeStampedDelayFactor(
+                                    props.pcapID,
+                                    props.streamID,
+                                    first_packet_ts,
+                                    last_packet_ts,
+                                    analysis.tsdf.tolerance,
+                                    analysis.tsdf.max,
+                                )
+                            }
+                            xAxis={ chartFormatters.getTimeLineLabel }
+                            data={ [].concat(
+                                chartFormatters.highThersholdsLineChart,
+                                chartFormatters.singleValueLineChart,
+                            ) }
+                            title='Time Stamped Delay Factor'
+                            yAxisLabel='TSDF (μs)'
+                            height={ 300 }
+                            lineWidth={ 3 }
                             legend
                         />
                     </div>
-                    <Button type="info" label="See EBU's TR for TSDF" onClick={() => { window.open('https://tech.ebu.ch/docs/tech/tech3337.pdf', '_blank') }} />
+                    <Button
+                        type='info'
+                        label='Audio analysis explained'
+                        onClick={() => {
+                            window.open(
+                                'https://github.com/ebu/pi-list/blob/master/docs/audio_timing_analysis.md',
+                                '_blank'
+                            );
+                        }}
+                    />
                 </div>
             </Panel>
         </Scrollbars>

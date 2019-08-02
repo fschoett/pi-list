@@ -38,6 +38,8 @@ namespace
         }
         // todo: detect streams marked as interlaced but is progressive
     }
+
+    constexpr uint32_t rtp_seqnum_window = 2048;
 }
 //------------------------------------------------------------------------------
 
@@ -106,22 +108,7 @@ void video_stream_handler::on_data(const rtp::packet& packet)
     const auto ts = packet.info.rtp.view().timestamp();
     detect_frame_transition(ts);
 
-    const auto previous_sequence_number = last_sequence_number_;
-
     parse_packet(packet); // todo: allow moving out of a packet
-
-    if(previous_sequence_number)
-    {
-        const auto current_sequence_number = last_sequence_number_;
-
-        const auto sn_difference = *current_sequence_number - *previous_sequence_number;
-
-        // TODO: deal with wrap-around?
-        if(sn_difference > 1)
-        {
-            video_description_.dropped_packet_count += sn_difference - 1;
-        }
-    }
 
     ++video_description_.packet_count;
     rate_.on_packet(ts);
@@ -130,6 +117,12 @@ void video_stream_handler::on_data(const rtp::packet& packet)
 void video_stream_handler::on_complete()
 {
     if (!current_frame_) return;
+
+    if (rtp_seqnum_analyzer_.dropped_packets() > 0)
+    {
+        video_description_.dropped_packet_count += rtp_seqnum_analyzer_.dropped_packets();
+        logger()->info("video rtp packet drop: {}", video_description_.dropped_packet_count);
+    }
 
     ++video_description_.frame_count;
     this->on_frame_complete(std::move(current_frame_));
@@ -142,6 +135,7 @@ void video_stream_handler::on_error(std::exception_ptr)
 {
 }
 
+// #define LIST_TRACE
 void video_stream_handler::parse_packet(const rtp::packet& packet)
 {
     auto& sdu = packet.sdu;
@@ -163,6 +157,11 @@ void video_stream_handler::parse_packet(const rtp::packet& packet)
     {
         auto line_index = 0;
 
+#if defined(LIST_TRACE)
+        logger()->info("UDP packet size: {} SDU size: {}", packet.info.udp.datagram_size, sdu.view().size_bytes());
+        logger()->info("Offset before header: {}", p - sdu.view().data());
+#endif // defined(LIST_TRACE)
+
         const auto end = sdu.view().data() + sdu.view().size();
         while (p < end)
         {
@@ -182,9 +181,20 @@ void video_stream_handler::parse_packet(const rtp::packet& packet)
             info.line_info[line_index].offset = line_header.offset();
             info.line_info[line_index].valid = true;
 
+#if defined(LIST_TRACE)
+            logger()->info("Line in packet: {} Line no: {} Offset: {} Length: {}", line_index, info.line_info[line_index].line_number, info.line_info[line_index].offset, info.line_info[line_index].length);
+#endif // defined(LIST_TRACE)
+
             ++line_index;
             if (!line_header.continuation()) break;
         }
+
+#if defined(LIST_TRACE)
+        logger()->info("Offset after header: {}", p - sdu.view().data());
+
+        const auto available_size = end - p;
+        logger()->info("Available size: {}", available_size);
+#endif // defined(LIST_TRACE)
 
         for (const auto& line : info.line_info)
         {
@@ -192,7 +202,7 @@ void video_stream_handler::parse_packet(const rtp::packet& packet)
 
             if (p + line.length > end)
             {
-                logger()->error("buffer out of bounds");
+                logger()->error("buffer out of bounds. Line no: {} Offset: {} Length: {}", line.line_number, line.offset, line.length);
                 break;
             }
 
@@ -201,7 +211,7 @@ void video_stream_handler::parse_packet(const rtp::packet& packet)
             const auto target = current_frame_->buffer->begin() + get_line_size_bytes(video_description_.video) * line.line_number + byte_offset;
             if (target + line.length > current_frame_->buffer->end())
             {
-                logger()->error("buffer out of bounds");
+                logger()->error("buffer out of bounds. Line no: {} Offset: {} Length: {}", line.line_number, line.offset, line.length);
                 break;
             }
 
@@ -213,7 +223,7 @@ void video_stream_handler::parse_packet(const rtp::packet& packet)
         }
     }
 
-    last_sequence_number_ = info.full_sequence_number;
+    rtp_seqnum_analyzer_.handle_packet(info.full_sequence_number);
     
     // todo: log number of packets lost
 

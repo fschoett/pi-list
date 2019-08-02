@@ -6,6 +6,7 @@
  */
 const { Router } = require('express');
 const program = require('../util/programArguments');
+const workflow = require('./workflow');
 
 // Initialize Express Router
 const router = Router();
@@ -21,5 +22,6 @@ if (program.liveMode) {
     router.use('/live', require('./live'));
 }
 
+router.use('/workflow', workflow);
 
 module.exports = router;

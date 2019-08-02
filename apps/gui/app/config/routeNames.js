@@ -3,10 +3,11 @@ export default {
     SETTINGS: '/settings',
     PCAPS: '/pcaps',
     CAPTURE: '/capture',
-    LIVE_SOURCES: '/live/sources',
+    LIVE_SOURCES: '/live_sources',
+    WORKFLOWS: '/workflows',
     LIVE: '/live',
     MONITOR: '/monitor',
     NETWORK: '/network',
     LIVE_SENDERS_PAGE: '/live/senders',
-    CONFIGURE: 'configure'
+    CONFIGURE: 'configure',
 };

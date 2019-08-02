@@ -64,11 +64,13 @@ function pcapPreProcessing(req, res, next) {
 
     const streamPreProcessorCommand = `"${program.cpp}/stream_pre_processor" "${req.file.path}" ${pcapId} ${withMongo}`;
 
+    const originalFilename = req.body.originalFilename || req.file.originalname;
+
     websocketManager.instance().sendEventToUser(userID, {
         event: WS_EVENTS.PCAP_FILE_RECEIVED,
         data: {
             id: pcapId,
-            file_name: req.file.originalname,
+            file_name: originalFilename,
             pcap_file_name: req.file.filename,
             date: Date.now(),
             progress: 33
@@ -83,7 +85,7 @@ function pcapPreProcessing(req, res, next) {
 
             return Pcap.findOneAndUpdate({ id: pcapId },
                 {
-                    file_name: req.file.originalname,
+                    file_name: originalFilename,
                     pcap_file_name: req.file.filename,
                     owner_id: userID,
                     generated_from_network: req.pcap.from_network ? true : false
@@ -104,7 +106,7 @@ function pcapPreProcessing(req, res, next) {
 
             Pcap.findOneAndUpdate({ id: pcapId },
                 {
-                    file_name: req.file.originalname,
+                    file_name: originalFilename,
                     pcap_file_name: req.file.filename,
                     owner_id: userID,
                     generated_from_network: req.pcap.from_network ? true : false,
@@ -167,17 +169,26 @@ function pcapFullAnalysis(req, res, next) {
         });
 }
 
-function resetStreamCounters(req, res, next) {
+function resetStreamCountersAndErrors(req, res, next) {
     const { streamID } = req.params;
+
+
     Stream.findOne({ id: streamID }).exec()
         .then(data =>  {
-            data.statistics.packet_count = 0;
-            data.statistics.dropped_packet_count = 0;
-            if (data.media_type == 'audio') {
-                data.statistics.sample_count = 0;
-            } else {
-                data.statistics.frame_count = 0;
+            if (typeof data.statistics !== 'undefined') {
+                data.statistics.packet_count = 0;
+                data.statistics.dropped_packet_count = 0;
+                if (data.media_type == 'audio') {
+                    data.statistics.sample_count = 0;
+                } else {
+                    data.statistics.frame_count = 0;
+                }
             }
+
+            if (typeof data.error_list !== 'undefined') {
+                data.error_list = [];
+            }
+
             Stream.findOneAndUpdate({ id: streamID }, data).exec()
                 .then(data =>  {
                     next();
@@ -414,7 +425,7 @@ module.exports = {
     ],
     pcapSingleStreamIngest: [
         pcapFileAvailableFromReq,
-        resetStreamCounters,
+        resetStreamCountersAndErrors,
         singleStreamAnalysis,
         videoConsolidation,
         audioConsolidation,
