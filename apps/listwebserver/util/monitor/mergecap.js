@@ -50,6 +50,7 @@ async function mergeFiles( mergeOptions ){
     const filename = mergeOptions.filename;
     const duration = mergeOptions.duration;
     const outputString = mergeOptions.outputString;
+	const outputPath = mergeOptions.outputPath;
     const filepath = mergeOptions.filepath;
 
     var currentSeconds = getCurrentSeconds();
@@ -65,10 +66,10 @@ async function mergeFiles( mergeOptions ){
         
     logger("mergecap").info("Files to merge: " + inputString);
     
-    const mergecapArguments = ["-w", filepath+outputString ,"-F", "pcap", ...inputString ];
+    const mergecapArguments = ["-w",outputPath+outputString ,"-F", "pcap", ...inputString ];
     const mergecapOptions = {};
     const mergecapProgram = "/usr/bin/mergecap";
-
+	console.log( mergecapArguments );
     const mergecapProcess = child_process.spawn(
         mergecapProgram,
         mergecapArguments,

@@ -1,7 +1,7 @@
 {
 	"captureDirectorys":[
 		{
-			"path": "/dev/0/",
+			"path": "/app/listwebserver/CaptureDir00/",
 			"type": "example",
 			"name": "example"
 		}

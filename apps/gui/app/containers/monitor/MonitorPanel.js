@@ -146,13 +146,7 @@ class MonitorPanel extends Component {
 						});
 					return "success"
 				}
-				else{
-					Notifications.error( {
-						title:"Error", 
-						message:"An error occured while trying to analyze the stream..." 
-					});
-					return "analysis failed.."
-				}
+				
 			}).catch( (err) => {
 				console.log(err);
 				Notifications.error( {

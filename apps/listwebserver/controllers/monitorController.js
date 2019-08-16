@@ -107,16 +107,20 @@ function analyze(req,res,next){
             var mergeOptions = {
                 filename: resJson.file_name,
                 filepath: resJson.directory,
+				outputPath: req.pcap.folder+"/",
                 outputString: resJson.file_name + "-mergedFile.pcap",
                 duration: req.body.duration || 5
             };
 
+
             // sets req.file, which is used by the ingest system
             req.file = {
-                path: mergeOptions.filepath+mergeOptions.outputString,
-                originalname: mergeOptions.filename,
-                filename: mergeOptions.filename
+				path: mergeOptions.outputPath+"/"+mergeOptions.outputString,
+                originalname: mergeOptions.filename+"-mergedFile.pcap",
+                filename: mergeOptions.outputString
             };
+
+			console.log( req.file ) ;
 
             mergeFiles( mergeOptions ).then(()=>{
                 next();

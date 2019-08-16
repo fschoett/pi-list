@@ -326,8 +326,8 @@ function pcapIngestEnd(req, res, next) {
         .then(pcapData => {
             // Everything is done, we must notify the GUI
             websocketManager.instance().sendEventToUser(userID, {
-                event: WS_EVENTS.PCAP_FILE_PROCESSING_DONE,
-                data: Object.assign({}, pcapData._doc, { progress: 100 })
+				event: WS_EVENTS.PCAP_FILE_PROCESSING_DONE,
+				data: Object.assign({}, pcapData._doc, { progress: 100 })
             });
         });
 }

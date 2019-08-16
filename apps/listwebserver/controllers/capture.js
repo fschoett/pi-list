@@ -44,8 +44,8 @@ function performCapture(req, res, next) {
         filename: new_pcap_filename
     };
 
-    const runner = runRecorder;
-    // const runner = runTcpdump;
+	//const runner = runRecorder;
+    const runner = runTcpdump;
 
     runner(captureOptions)
         .then(() => {

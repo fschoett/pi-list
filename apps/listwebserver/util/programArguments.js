@@ -6,7 +6,6 @@ const path = require('./path');
 function parseNmosArguments(args) {
     return args.nmos || null;
 }
-
 function parseArguments(args) {
     const nmosArguments = parseNmosArguments(args);
 
@@ -18,7 +17,8 @@ function parseArguments(args) {
         databaseURL: `mongodb://${args.database.hostname}:${
             args.database.port
         }`,
-        rabbitmqUrl: `amqp://${args.rabbitmq.hostname}:${args.rabbitmq.port}`,
+		//rabbitmqUrl: `amqp://${args.rabbitmq.hostname}:${args.rabbitmq.port}`,
+		prabbitmqUrl: `amqp://localhost:5672`,
         nmos: nmosArguments,
         developmentMode: args.dev || false,
         liveMode: args.liveMode || args.live || false,
